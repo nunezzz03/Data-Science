@@ -1,0 +1,21 @@
+Dataset,Model,Accuracy,Precision,Recall,Note
+Traffic,NaiveBayes,0.8281,0.7711,0.6996,Success
+Traffic,KNN,0.9283,0.9044,0.8669,Success
+Traffic,DecisionTree,0.9502,0.9217,0.9186,Success
+Traffic,LogReg,0.8326,0.8671,0.6318,Success
+Traffic,MLP,0.944,0.9407,0.8543,Success
+Accidents,NaiveBayes,0.8213,0.8784,0.7967,Success
+Accidents,KNN,0.0,0.0,0.0,Timed Out / Skipped
+Accidents,DecisionTree,0.8275,0.8665,0.8066,Success
+Accidents,LogReg,0.0,0.0,0.0,Timed Out / Skipped
+Accidents,MLP,0.0,0.0,0.0,Timed Out / Skipped
+Economic,NaiveBayes,0.3667,0.1706,0.2469,Success
+Economic,KNN,0.24,0.1413,0.1615,Success
+Economic,DecisionTree,0.3467,0.2865,0.3027,Success
+Economic,LogReg,0.3733,0.174,0.2504,Success
+Economic,MLP,0.32,0.08,0.25,Success
+Flights,NaiveBayes,0.9338,0.9241,0.8748,Success
+Flights,KNN,0.0,0.0,0.0,Timed Out / Skipped
+Flights,DecisionTree,0.9413,0.9323,0.8902,Success
+Flights,LogReg,0.0,0.0,0.0,Timed Out / Skipped
+Flights,MLP,0.0,0.0,0.0,Timed Out / Skipped

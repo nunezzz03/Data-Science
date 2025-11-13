@@ -1,6 +1,0 @@
-Model,Accuracy,Precision,Recall
-Naive Bayes,0.8213,0.8638,0.8213
-Logistic Regression,0.8212,0.8636,0.8212
-KNN,0.8032,0.8103,0.8032
-Decision Tree,0.8272,0.8548,0.8272
-MLP,0.8292,0.8576,0.8292
