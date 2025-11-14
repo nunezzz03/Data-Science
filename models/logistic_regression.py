@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, classification_report, precision_score, recall_score
 import warnings
 
 # Ignore "ConvergenceWarning" because we EXPECT raw data to fail converging
@@ -13,11 +13,9 @@ warnings.filterwarnings("ignore", category=ConvergenceWarning)
 # Ensure images folder exists
 os.makedirs("images", exist_ok=True)
 
-# Configuration for all 4 datasets
+# Configuration for 2 datasets
 datasets = [
-    {"name": "Traffic", "file_tag": "traffic", "target": "Traffic Situation"},
     {"name": "Accidents", "file_tag": "accidents", "target": "crash_type"},
-    {"name": "Economic", "file_tag": "economic", "target": "GDP_Category"},
     {"name": "Flights", "file_tag": "flights", "target": "ArrDel15"},
 ]
 
@@ -33,11 +31,12 @@ def logistic_regression_study(file_tag, target_col):
         print(f"   ⚠️ Skipping {file_tag} (Files not found)")
         return
 
-    # Skip if dataset is too large (slow convergence on unscaled data)
-    if len(train_df) > 50000:
-        print(f"   ⚠️ Skipping {file_tag} (Dataset too large: {len(train_df)} rows)")
-        print(f"   💡 LogReg requires iterative optimization - very slow on large unscaled datasets")
-        return
+    # Sample if dataset is too large (slow convergence on unscaled data)
+    if len(train_df) > 100000:
+        sample_size = 1000
+        train_df = train_df.sample(n=sample_size, random_state=42)
+        test_df = test_df.sample(n=min(len(test_df), int(sample_size * 0.3)), random_state=42)
+        print(f"   ⚠️ Sampled to {len(train_df)} train, {len(test_df)} test rows for performance")
 
     # 2. Prepare X and Y
     trnX = train_df.drop(columns=[target_col])
@@ -56,7 +55,11 @@ def logistic_regression_study(file_tag, target_col):
     best_params = {}
 
     # Plot Data: {'l1': [acc_10, acc_50...], 'l2': ...}
-    plot_data = {p: [] for p in penalties}
+    plot_data = {
+        "accuracy": {p: [] for p in penalties},
+        "precision": {p: [] for p in penalties},
+        "recall": {p: [] for p in penalties}
+    }
 
     # 4. Training Loop
     for p in penalties:
@@ -69,8 +72,12 @@ def logistic_regression_study(file_tag, target_col):
             clf.fit(trnX, trnY)
             pred = clf.predict(tstX)
             acc = accuracy_score(tstY, pred)
+            prec = precision_score(tstY, pred, average='weighted', zero_division=0)
+            rec = recall_score(tstY, pred, average='weighted', zero_division=0)
 
-            plot_data[p].append(acc)
+            plot_data["accuracy"][p].append(acc)
+            plot_data["precision"][p].append(prec)
+            plot_data["recall"][p].append(rec)
 
             if acc > best_acc:
                 best_acc = acc
@@ -81,23 +88,25 @@ def logistic_regression_study(file_tag, target_col):
         f"   🏆 Best: Penalty={best_params['penalty']}, Max Iter={best_params['iter']} (Acc: {best_acc:.4f})"
     )
 
-    # 5. Plotting (Iterations vs Accuracy)
-    plt.figure(figsize=(10, 6))
+    # 5. Plotting (Iterations vs metric) for all three metrics
+    for metric in ["accuracy", "precision", "recall"]:
+        plt.figure(figsize=(10, 6))
 
-    plt.plot(iterations, plot_data["l1"], marker="o", label="L1 (Lasso)")
-    plt.plot(iterations, plot_data["l2"], marker="s", label="L2 (Ridge)")
+        plt.plot(iterations, plot_data[metric]["l1"], marker="o", label="L1 (Lasso)")
+        plt.plot(iterations, plot_data[metric]["l2"], marker="s", label="L2 (Ridge)")
 
-    plt.title(f"Logistic Regression Convergence: {file_tag.capitalize()}")
-    plt.xlabel("Number of Iterations")
-    plt.ylabel("Accuracy")
-    plt.xscale("log")  # Log scale helps seeing the difference between 10 and 5000
-    plt.legend()
-    plt.grid(True)
+        plt.title(f"Logistic Regression {metric.capitalize()}: {file_tag.capitalize()}")
+        plt.xlabel("Number of Iterations")
+        plt.ylabel(metric.capitalize())
+        plt.xscale("log")  # Log scale helps seeing the difference between 10 and 5000
+        plt.legend()
+        plt.grid(True)
 
-    chart_path = f"images/{file_tag}_lr_study.png"
-    plt.savefig(chart_path)
-    plt.close()
-    print(f"   📈 Chart saved to: {chart_path}")
+        chart_path = f"images/{file_tag}_lr_{metric}.png"
+        plt.savefig(chart_path)
+        plt.close()
+    
+    print(f"   📈 Charts saved to: images/{file_tag}_lr_*.png")
 
     # 6. Detailed Report
     print("   --- Classification Report ---")

@@ -1,17 +1,15 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, classification_report, precision_score, recall_score
 import os
 
 # Create images folder
 os.makedirs("images", exist_ok=True)
 
-# === CONFIGURATION FOR ALL 4 DATASETS ===
+# === CONFIGURATION FOR 2 DATASETS ===
 datasets = [
-    {"name": "Traffic", "file_tag": "traffic", "target": "Traffic Situation"},
     {"name": "Accidents", "file_tag": "accidents", "target": "crash_type"},
-    {"name": "Economic", "file_tag": "economic", "target": "GDP_Category"},
     {"name": "Flights", "file_tag": "flights", "target": "ArrDel15"},
 ]
 
@@ -37,7 +35,11 @@ def trees_study(file_tag, target_col):
     # Settings
     criteria = ["entropy", "gini"]
     depths = [2, 4, 6, 8, 10, 15, 20, 25]
-    plot_data = {"entropy": [], "gini": []}
+    plot_data = {
+        "accuracy": {"entropy": [], "gini": []},
+        "precision": {"entropy": [], "gini": []},
+        "recall": {"entropy": [], "gini": []}
+    }
 
     best_acc = 0
     best_model = None
@@ -48,11 +50,18 @@ def trees_study(file_tag, target_col):
         for d in depths:
             clf = DecisionTreeClassifier(max_depth=d, criterion=c, random_state=42)
             clf.fit(trnX, trnY)
-            score = accuracy_score(tstY, clf.predict(tstX))
-            plot_data[c].append(score)
+            y_pred = clf.predict(tstX)
+            
+            acc = accuracy_score(tstY, y_pred)
+            prec = precision_score(tstY, y_pred, average='weighted', zero_division=0)
+            rec = recall_score(tstY, y_pred, average='weighted', zero_division=0)
+            
+            plot_data["accuracy"][c].append(acc)
+            plot_data["precision"][c].append(prec)
+            plot_data["recall"][c].append(rec)
 
-            if score > best_acc:
-                best_acc = score
+            if acc > best_acc:
+                best_acc = acc
                 best_model = clf
                 best_params = {"c": c, "d": d}
 
@@ -60,17 +69,19 @@ def trees_study(file_tag, target_col):
         f"   Best: {best_params['c']} with depth={best_params['d']} (Acc: {best_acc:.2f})"
     )
 
-    # Plot
-    plt.figure(figsize=(8, 5))
-    plt.plot(depths, plot_data["entropy"], "-o", label="Entropy")
-    plt.plot(depths, plot_data["gini"], "-s", label="Gini")
-    plt.title(f"Decision Tree: {file_tag.capitalize()}")
-    plt.xlabel("Max Depth")
-    plt.ylabel("Accuracy")
-    plt.legend()
-    plt.grid(True)
-    plt.savefig(f"images/{file_tag}_dt_study.png")
-    plt.close()
+    # Plot all three metrics in separate images
+    metrics = ["accuracy", "precision", "recall"]
+    for metric in metrics:
+        plt.figure(figsize=(8, 5))
+        plt.plot(depths, plot_data[metric]["entropy"], "-o", label="Entropy")
+        plt.plot(depths, plot_data[metric]["gini"], "-s", label="Gini")
+        plt.title(f"Decision Tree {metric.capitalize()}: {file_tag.capitalize()}")
+        plt.xlabel("Max Depth")
+        plt.ylabel(metric.capitalize())
+        plt.legend()
+        plt.grid(True)
+        plt.savefig(f"images/{file_tag}_dt_{metric}.png")
+        plt.close()
 
     # Print Report
     print("   --- Classification Report ---")

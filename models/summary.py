@@ -30,9 +30,7 @@ models = {
 }
 
 datasets = [
-    {"name": "Traffic", "file": "traffic"},
     {"name": "Accidents", "file": "accidents"},
-    {"name": "Economic", "file": "economic"},
     {"name": "Flights", "file": "flights"},
 ]
 
@@ -54,12 +52,8 @@ for ds in datasets:
         continue
 
     # Identify Target
-    if name == "Traffic":
-        target = "Traffic Situation"
-    elif name == "Accidents":
+    if name == "Accidents":
         target = "crash_type"
-    elif name == "Economic":
-        target = "GDP_Category"
     elif name == "Flights":
         target = "ArrDel15"
 
@@ -70,22 +64,6 @@ for ds in datasets:
 
     # Run All Models
     for model_name, clf in models.items():
-
-        # SKIP SLOW MODELS FOR LARGE DATASETS
-        if (name in ["Flights", "Accidents"] and model_name in ["KNN", "LogReg", "MLP"]):
-            print(f"   ⏩ Skipping {model_name} for {name} (Too slow on large unscaled dataset)")
-            results_list.append(
-                {
-                    "Dataset": name,
-                    "Model": model_name,
-                    "Accuracy": 0,
-                    "Precision": 0,
-                    "Recall": 0,
-                    "Note": "Timed Out / Skipped",
-                }
-            )
-            continue
-
         print(f"   ⚙️ Training {model_name}...")
         try:
             start_time = time.time()
@@ -127,27 +105,29 @@ csv_path = "results/baseline_results_summary.csv"
 results_df.to_csv(csv_path, index=False)
 print(f"\n✅ Results saved to {csv_path}")
 
-# --- Create Comparison Charts ---
+# --- Create Comparison Charts for all three metrics ---
 for name in results_df["Dataset"].unique():
     subset = results_df[results_df["Dataset"] == name]
     if subset["Accuracy"].sum() == 0:
         continue  # Skip if all failed
 
-    plt.figure(figsize=(10, 5))
-    # Plot Accuracy
-    plt.bar(
-        subset["Model"],
-        subset["Accuracy"],
-        color=["#4c72b0", "#dd8452", "#55a868", "#c44e52", "#8172b3"],
-    )
-    plt.title(f"Model Comparison: {name} (Accuracy)")
-    plt.ylabel("Accuracy")
-    plt.ylim(0, 1.0)
+    # Create separate charts for each metric
+    for metric in ["Accuracy", "Precision", "Recall"]:
+        plt.figure(figsize=(10, 5))
+        plt.bar(
+            subset["Model"],
+            subset[metric],
+            color=["#4c72b0", "#dd8452", "#55a868", "#c44e52", "#8172b3"],
+        )
+        plt.title(f"Model Comparison: {name} ({metric})")
+        plt.ylabel(metric)
+        plt.ylim(0, 1.0)
 
-    # Add labels
-    for i, val in enumerate(subset["Accuracy"]):
-        plt.text(i, val + 0.02, str(val), ha="center")
+        # Add labels
+        for i, val in enumerate(subset[metric]):
+            plt.text(i, val + 0.02, str(val), ha="center")
 
-    plt.savefig(f"images/{name.lower()}_final_comparison.png")
-    plt.close()
+        plt.savefig(f"images/{name.lower()}_final_{metric.lower()}.png")
+        plt.close()
+    
     print(f"📊 Saved chart for {name}")

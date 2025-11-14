@@ -67,60 +67,12 @@ def process_dataset(
 # --- RUN LIST ---
 print("\n🔧 FIXED DATA PREPARATION - Addressing Data Leakage Issues\n")
 
-# 1. Traffic - Remove 'Total' column (derived feature)
-print("1️⃣ TRAFFIC DATASET")
-process_dataset(
-    "TrafficTwoMonth.csv", "Traffic Situation", "traffic", exclude_cols=["Total"]
-)
-
-# 2. Accidents - Keep as is (no issues found)
-print("\n2️⃣ ACCIDENTS DATASET")
+# 1. Accidents - Keep as is (no issues found)
+print("1️⃣ ACCIDENTS DATASET")
 process_dataset("traffic_accidents.csv", "crash_type", "accidents")
 
-# 3. Economic - Create proper classification task: predict GDP Growth category
-print("\n3️⃣ ECONOMIC DATASET - FIXED TASK")
-try:
-    df_econ = pd.read_csv("data/raw/economic_indicators_dataset_2010_2023.csv")
-    df_econ = df_econ.dropna()
-
-    # Create meaningful target: GDP Growth Rate categories
-    df_econ["GDP_Category"] = pd.cut(
-        df_econ["GDP Growth Rate (%)"],
-        bins=[-float("inf"), 0, 2, 4, float("inf")],
-        labels=["Negative", "Low", "Medium", "High"],
-    )
-
-    # Keep only numeric features + new target
-    numeric_cols = df_econ.select_dtypes(include=["number"]).columns.tolist()
-    # Remove original GDP Growth Rate (would be leakage to predict GDP category)
-    numeric_cols = [col for col in numeric_cols if col != "GDP Growth Rate (%)"]
-    cols_to_keep = numeric_cols + ["GDP_Category"]
-
-    df_econ_clean = df_econ[cols_to_keep]
-
-    # Split with stratification
-    train_df, test_df = train_test_split(
-        df_econ_clean,
-        test_size=0.3,
-        random_state=42,
-        stratify=df_econ_clean["GDP_Category"],
-    )
-
-    output_dir = "data/processed"
-    os.makedirs(output_dir, exist_ok=True)
-    train_df.to_csv(os.path.join(output_dir, "economic_train.csv"), index=False)
-    test_df.to_csv(os.path.join(output_dir, "economic_test.csv"), index=False)
-    print(
-        f"✅ Created economic files with GDP_Category target: Train={len(train_df)}, Test={len(test_df)}"
-    )
-    print(
-        f"   Target distribution: {train_df['GDP_Category'].value_counts().to_dict()}"
-    )
-except Exception as e:
-    print(f"❌ Economic processing failed: {e}")
-
-# 4. Flights - Remove ALL features only known after arrival (DATA LEAKAGE FIX)
-print("\n4️⃣ FLIGHTS DATASET - FIXED DATA LEAKAGE")
+# 2. Flights - Remove ALL features only known after arrival (DATA LEAKAGE FIX)
+print("\n2️⃣ FLIGHTS DATASET - FIXED DATA LEAKAGE")
 leakage_features = [
     "ArrTime",  # Only known after landing
     "ArrDelayMinutes",  # Contains the answer!
