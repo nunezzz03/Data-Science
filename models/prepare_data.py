@@ -11,7 +11,26 @@ def process_dataset(
         # Read file from datasets folder
         filepath = os.path.join("data/raw", filename)
         df = pd.read_csv(filepath)
-
+        #Dimensionality Summary for Raw data
+        summary_raw = {
+        "Records": df.shape[0],
+        "Variables": df.shape[1],
+        "Numerical": df.select_dtypes(include="number").shape[1],
+        "Boolean": df.select_dtypes(include="bool").shape[1],
+        "Categorical": df.select_dtypes(include="object").shape[1],
+        "Datetime": df.select_dtypes(include="datetime").shape[1],
+        "Nan Instances": df.isna().any(axis=1).sum()
+        }
+        summary_raw_df = pd.DataFrame({
+        "Metric": list(summary_raw.keys()),
+        "Value": [int(v) for v in summary_raw.values()] 
+        })
+        
+        stem_name = os.path.splitext(filename)[0]
+        # Save Raw Dimentionality Summary file in results
+        summary_raw_df.to_csv(f"results/dimensionality_summary_table_{stem_name}_raw.csv", index=False)
+        print(f"Saved summary in results/dimentionality_summary_table_{stem_name}_raw.csv")
+        
         # If it's the massive flights file, sample it down to avoid crashes
         if sample_fraction < 1.0:
             df = df.sample(frac=sample_fraction, random_state=42)
@@ -36,7 +55,24 @@ def process_dataset(
             print(
                 f"   🚫 Excluded leakage features: {[col for col in exclude_cols if col in df.columns]}"
             )
-
+        # Clean Dimensionality Summary
+        summary_clean = {
+            "Records": df_clean.shape[0],
+            "Variables": df_clean.shape[1],
+            "Numerical": df_clean.select_dtypes(include="number").shape[1],
+            "Boolean": df_clean.select_dtypes(include="bool").shape[1],
+            "Categorical": df_clean.select_dtypes(include="object").shape[1],
+            "Datetime": df_clean.select_dtypes(include="datetime").shape[1],
+            "Nan Instances": df_clean.isna().any(axis=1).sum()
+            }
+        summary_clean_df = pd.DataFrame({
+        "Metric": list(summary_clean.keys()),
+        "Value": [int(v) for v in summary_clean.values()] 
+        })
+        # Save Clean Dimentionality Summary file in results
+        summary_clean_df.to_csv(f"results/dimentionality_summary_table_{stem_name}_clean.csv", index=False)
+        print(f"Saved summary in results/dimentionality_summary_table_{stem_name}_clean.csv")
+        
         # 4. Split
         # Check if target allows stratification
         try:
