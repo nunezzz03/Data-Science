@@ -45,8 +45,8 @@ for ds in datasets:
 
     # Load Data
     try:
-        train_df = pd.read_csv(f"data/processed/{tag}_train.csv")
-        test_df = pd.read_csv(f"data/processed/{tag}_test.csv")
+        train_df = pd.read_csv(f"../data/processed/{tag}_train.csv")
+        test_df = pd.read_csv(f"../data/processed/{tag}_test.csv")
     except FileNotFoundError:
         print(f"   ❌ Files not found for {name}, skipping.")
         continue
