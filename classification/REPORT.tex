@@ -1,0 +1,435 @@
+\documentclass[11pt,a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% Page setup
+\geometry{margin=1in}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{10pt}
+
+% Title information
+\title{\textbf{Lab 1 - Baseline Models Report}}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Results Summary}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}llccc@{}}
+\toprule
+\textbf{Dataset} & \textbf{Model} & \textbf{Acc.} & \textbf{Prec.} & \textbf{Recall} \\
+\midrule
+\textbf{Accidents} & NaiveBayes & 0.8213 & 0.88 & 0.80 \\
+\textbf{Accidents} & KNN\textsuperscript{*} & 0.7800 & 0.81 & 0.73 \\
+\textbf{Accidents} & DecisionTree & \textbf{0.8300} & \textbf{0.87} & \textbf{0.81} \\
+\textbf{Accidents} & LogReg\textsuperscript{*} & 0.8600 & 0.90 & 0.82 \\
+\textbf{Accidents} & MLP\textsuperscript{*} & 0.8667 & 0.90 & 0.82 \\
+\midrule
+\textbf{Flights} & NaiveBayes & 0.9338 & 0.92 & 0.87 \\
+\textbf{Flights} & KNN\textsuperscript{*} & 0.7733 & 0.66 & 0.54 \\
+\textbf{Flights} & DecisionTree & \textbf{0.9400} & \textbf{0.93} & \textbf{0.90} \\
+\textbf{Flights} & LogReg\textsuperscript{*} & 0.9767 & 0.97 & 0.96 \\
+\textbf{Flights} & MLP\textsuperscript{*} & 0.7700 & 0.39 & 0.50 \\
+\bottomrule
+\end{tabular}
+\caption{Baseline models performance summary across both datasets. \textsuperscript{*}Sampled: 1000 train}
+\end{table}
+
+\clearpage
+
+\section{Accidents Dataset}
+
+\subsection{Final Model Comparison}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_final_accuracy.png}
+    \caption{Accuracy Comparison}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_final_precision.png}
+    \caption{Precision Comparison}
+\end{subfigure}
+
+\vspace{0.5cm}
+
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_final_recall.png}
+    \caption{Recall Comparison}
+\end{subfigure}
+\caption{Final model comparison for Accidents dataset}
+\end{figure}
+
+\subsection{Naive Bayes Study}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_nb_accuracy.png}
+    \caption{Accuracy}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_nb_precision.png}
+    \caption{Precision}
+\end{subfigure}
+
+\vspace{0.5cm}
+
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_nb_recall.png}
+    \caption{Recall}
+\end{subfigure}
+\caption{Naive Bayes performance on Accidents dataset}
+\end{figure}
+
+\subsection{KNN Study}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_knn_accuracy.png}
+    \caption{Accuracy}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_knn_precision.png}
+    \caption{Precision}
+\end{subfigure}
+
+\vspace{0.5cm}
+
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_knn_recall.png}
+    \caption{Recall}
+\end{subfigure}
+\caption{KNN performance on Accidents dataset}
+\end{figure}
+
+\subsection{Decision Tree Study}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_dt_accuracy.png}
+    \caption{Accuracy}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_dt_precision.png}
+    \caption{Precision}
+\end{subfigure}
+
+\vspace{0.5cm}
+
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_dt_recall.png}
+    \caption{Recall}
+\end{subfigure}
+\caption{Decision Tree performance on Accidents dataset}
+\end{figure}
+
+\subsection{Logistic Regression Study}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_lr_accuracy.png}
+    \caption{Accuracy}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_lr_precision.png}
+    \caption{Precision}
+\end{subfigure}
+
+\vspace{0.5cm}
+
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_lr_recall.png}
+    \caption{Recall}
+\end{subfigure}
+\caption{Logistic Regression performance on Accidents dataset}
+\end{figure}
+
+\subsection{MLP Study}
+
+\subsubsection{Adaptive Learning Rate}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_mlp_adaptive_accuracy.png}
+    \caption{Accuracy}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_mlp_adaptive_precision.png}
+    \caption{Precision}
+\end{subfigure}
+
+\vspace{0.5cm}
+
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_mlp_adaptive_recall.png}
+    \caption{Recall}
+\end{subfigure}
+\caption{MLP with Adaptive Learning Rate on Accidents dataset}
+\end{figure}
+
+\subsubsection{Constant Learning Rate}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_mlp_constant_accuracy.png}
+    \caption{Accuracy}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_mlp_constant_precision.png}
+    \caption{Precision}
+\end{subfigure}
+
+\vspace{0.5cm}
+
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_mlp_constant_recall.png}
+    \caption{Recall}
+\end{subfigure}
+\caption{MLP with Constant Learning Rate on Accidents dataset}
+\end{figure}
+
+\subsubsection{Inverse Scaling Learning Rate}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_mlp_invscaling_accuracy.png}
+    \caption{Accuracy}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_mlp_invscaling_precision.png}
+    \caption{Precision}
+\end{subfigure}
+
+\vspace{0.5cm}
+
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/accidents_mlp_invscaling_recall.png}
+    \caption{Recall}
+\end{subfigure}
+\caption{MLP with Inverse Scaling Learning Rate on Accidents dataset}
+\end{figure}
+
+\clearpage
+
+\section{Flights Dataset}
+
+\subsection{Final Model Comparison}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_final_accuracy.png}
+    \caption{Accuracy Comparison}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_final_precision.png}
+    \caption{Precision Comparison}
+\end{subfigure}
+
+\vspace{0.5cm}
+
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_final_recall.png}
+    \caption{Recall Comparison}
+\end{subfigure}
+\caption{Final model comparison for Flights dataset}
+\end{figure}
+
+\subsection{Naive Bayes Study}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_nb_accuracy.png}
+    \caption{Accuracy}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_nb_precision.png}
+    \caption{Precision}
+\end{subfigure}
+
+\vspace{0.5cm}
+
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_nb_recall.png}
+    \caption{Recall}
+\end{subfigure}
+\caption{Naive Bayes performance on Flights dataset}
+\end{figure}
+
+\subsection{KNN Study}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_knn_accuracy.png}
+    \caption{Accuracy}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_knn_precision.png}
+    \caption{Precision}
+\end{subfigure}
+
+\vspace{0.5cm}
+
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_knn_recall.png}
+    \caption{Recall}
+\end{subfigure}
+\caption{KNN performance on Flights dataset}
+\end{figure}
+
+\subsection{Decision Tree Study}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_dt_accuracy.png}
+    \caption{Accuracy}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_dt_precision.png}
+    \caption{Precision}
+\end{subfigure}
+
+\vspace{0.5cm}
+
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_dt_recall.png}
+    \caption{Recall}
+\end{subfigure}
+\caption{Decision Tree performance on Flights dataset}
+\end{figure}
+
+\subsection{Logistic Regression Study}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_lr_accuracy.png}
+    \caption{Accuracy}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_lr_precision.png}
+    \caption{Precision}
+\end{subfigure}
+
+\vspace{0.5cm}
+
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_lr_recall.png}
+    \caption{Recall}
+\end{subfigure}
+\caption{Logistic Regression performance on Flights dataset}
+\end{figure}
+
+\subsection{MLP Study}
+
+\subsubsection{Adaptive Learning Rate}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_mlp_adaptive_accuracy.png}
+    \caption{Accuracy}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_mlp_adaptive_precision.png}
+    \caption{Precision}
+\end{subfigure}
+
+\vspace{0.5cm}
+
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_mlp_adaptive_recall.png}
+    \caption{Recall}
+\end{subfigure}
+\caption{MLP with Adaptive Learning Rate on Flights dataset}
+\end{figure}
+
+\subsubsection{Constant Learning Rate}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_mlp_constant_accuracy.png}
+    \caption{Accuracy}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_mlp_constant_precision.png}
+    \caption{Precision}
+\end{subfigure}
+
+\vspace{0.5cm}
+
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_mlp_constant_recall.png}
+    \caption{Recall}
+\end{subfigure}
+\caption{MLP with Constant Learning Rate on Flights dataset}
+\end{figure}
+
+\subsubsection{Inverse Scaling Learning Rate}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_mlp_invscaling_accuracy.png}
+    \caption{Accuracy}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_mlp_invscaling_precision.png}
+    \caption{Precision}
+\end{subfigure}
+
+\vspace{0.5cm}
+
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/flights_mlp_invscaling_recall.png}
+    \caption{Recall}
+\end{subfigure}
+\caption{MLP with Inverse Scaling Learning Rate on Flights dataset}
+\end{figure}
+
+\end{document}

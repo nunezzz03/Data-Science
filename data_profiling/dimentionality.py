@@ -6,26 +6,31 @@ from matplotlib.axes import Axes
 from matplotlib.container import BarContainer
 from matplotlib.axes import Axes
 from matplotlib.container import BarContainer
-from pandas import Series, DataFrame , to_numeric, to_datetime
+from pandas import Series, DataFrame, to_numeric, to_datetime
+
+# Get paths relative to this script's location
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)  # One level up from data_profiling/
 
 
 def process_dataset(filename):
     print(f"--- Processing {filename} ---")
     try:
-        # Read file from datasets folder
-        filepath = os.path.join("data/raw", filename)
+        # Read file from datasets folder (consistent path)
+        filepath = os.path.join(PROJECT_ROOT, "data", "raw", filename)
         df = pd.read_csv(filepath)
-        
-        
+
         file_tag = os.path.splitext(filename)[0]
-        #Dimensionality Summary Study
+        # Dimensionality Summary Study
         dimensionality_summary(df, file_tag)
 
     except FileNotFoundError:
         print(f"❌ Could not find {filepath}")
     return
 
+
 # FUNCTIONS FOR DIMENTIONALITY ANALYSIS
+
 
 def plot_bar_chart(
     xvalues: list,
@@ -68,22 +73,31 @@ def plot_bar_chart(
     # For readibility
     ax.set_ylim(bottom=0)
     ax.set_title(title, fontsize=14)
-    ax.tick_params(axis='x', labelsize=12)
-    ax.tick_params(axis='y', labelsize=10)
+    ax.tick_params(axis="x", labelsize=12)
+    ax.tick_params(axis="y", labelsize=10)
     ax.margins(y=0.15)  # padding above bars
     plt.xticks(rotation=20)  # rotate for readability
-    
+
     return ax
 
 
-def records_x_variables(data,file_tag):
+def records_x_variables(data, file_tag):
     plt.figure(figsize=(6, 6))
-    values: dict[str, int] = {"nr records": data.shape[0], "nr variables": data.shape[1]}
+    values: dict[str, int] = {
+        "nr records": data.shape[0],
+        "nr variables": data.shape[1],
+    }
     plot_bar_chart(
-        list(values.keys()), list(values.values()), title="Nr of records vs nr variables"
+        list(values.keys()),
+        list(values.values()),
+        title="Nr of records vs nr variables",
     )
-    plt.savefig(f"images/{file_tag}_records_variables.png")
+    img_path = os.path.join(
+        PROJECT_ROOT, "images", "dimensionality", f"{file_tag}_records_variables.png"
+    )
+    plt.savefig(img_path, bbox_inches="tight")
     return
+
 
 def missing_values_per_variable(data, file_tag):
     """
@@ -97,10 +111,10 @@ def missing_values_per_variable(data, file_tag):
         nr_na = data[var].isna().sum()
         # Count 'unknown' strings (case-insensitive)
         nr_unknown = (data[var].astype(str).str.lower() == "unknown").sum()
-        
+
         # Total missing
         total_missing = nr_na + nr_unknown
-        
+
         if total_missing > 0:
             mv[var] = total_missing
 
@@ -115,7 +129,10 @@ def missing_values_per_variable(data, file_tag):
     )
 
     # Save figure
-    plt.savefig(f"images/{file_tag}_mv.png")
+    img_path = os.path.join(
+        PROJECT_ROOT, "images", "dimensionality", f"{file_tag}_mv.png"
+    )
+    plt.savefig(img_path, bbox_inches="tight")
     return
 
 
@@ -140,6 +157,7 @@ def get_variable_types(df: DataFrame) -> dict[str, list]:
 
     return variable_types
 
+
 def plot_variable_type_counts(data, file_tag):
     # Get variable types
     variable_types: dict[str, list] = get_variable_types(data)
@@ -154,11 +172,15 @@ def plot_variable_type_counts(data, file_tag):
         list(counts.values()),
         title="Nr of variables per type",
         xlabel="Variable type",
-        ylabel="Nr of variables"
+        ylabel="Nr of variables",
     )
 
-    plt.savefig(f"images/{file_tag}_variable_types.png", bbox_inches="tight")    
+    img_path = os.path.join(
+        PROJECT_ROOT, "images", "dimensionality", f"{file_tag}_variable_types.png"
+    )
+    plt.savefig(img_path, bbox_inches="tight")
     return
+
 
 def dimensionality_summary(df, file_tag):
     """
@@ -166,15 +188,15 @@ def dimensionality_summary(df, file_tag):
       - Number of records vs variables
       - Missing values per variable
       - Number of variables per type (numeric, binary, date, symbolic)
-      
+
     Saves all figures to the `images/` folder with filenames prefixed by `file_tag`.
-    
+
     Args:
         df: pandas DataFrame
         file_tag: string prefix for saved images
     """
-    import os
-    os.makedirs("images", exist_ok=True)  # Ensure folder exists
+    # Ensure images folder exists in project root
+    os.makedirs(os.path.join(PROJECT_ROOT, "images", "dimensionality"), exist_ok=True)
 
     # 1️⃣ Records vs Variables
     records_x_variables(df, file_tag)
@@ -184,9 +206,10 @@ def dimensionality_summary(df, file_tag):
 
     # 3️⃣ Variables per type
     plot_variable_type_counts(df, file_tag)
-    
+
     print("Dimentionality Summary Done - see images for results")
     return
+
 
 # --- RUN LIST ---
 # 1. Accidents - Keep as is (no issues found)
@@ -199,4 +222,3 @@ print("\n2️⃣ FLIGHTS DATASET")
 process_dataset("Combined_Flights_2022.csv")
 
 print("\n✅ Dimentionality Profiling Done! Check Images.")
-
