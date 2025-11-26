@@ -1,10 +1,20 @@
+import os
 from matplotlib.pyplot import rcParams, style
 from matplotlib.colors import LinearSegmentedColormap
 from warnings import simplefilter
 from cycler import cycler
 
 simplefilter("ignore")
-style.use("dslabs.mplstyle")
+
+# --- CORREÇÃO DO PATH DO ESTILO ---
+# Obtém a pasta onde este ficheiro (config.py) está guardado
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# Constrói o caminho completo para o dslabs.mplstyle
+style_file = os.path.join(current_dir, "dslabs.mplstyle")
+
+# Usa o caminho absoluto para carregar o estilo
+style.use(style_file)
+# ----------------------------------
 
 HATCHES = [".", "..", "...", "o"]  # ['/', '+', 'X', '*'] #'oo', 'OO', '..'
 
