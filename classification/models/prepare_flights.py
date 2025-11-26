@@ -77,7 +77,7 @@ def prepare_flights_dataset():
     ]
     df = df.drop(columns=[c for c in leakage_cols if c in df.columns])
     
-    target = "ArrDel15"
+    target = "Cancelled"
     
     # 2. Missing Values (Imputation)
     df = mvi_by_filling(df, strategy="frequent")
