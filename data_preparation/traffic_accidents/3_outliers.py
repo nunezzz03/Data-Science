@@ -1,8 +1,11 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+import sys
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import lab3_config as config
+
 import dslabs_functions as ds
 
 
@@ -61,9 +64,9 @@ def run_outliers():
     )
     print(f"      IQR Drop F1 (NB, KNN): {eval_iqr['f1']}")
     ds.plot_multibar_chart(
-        ["NB", "KNN"], {"IQR Drop": eval_iqr["f1"]}, title="IQR Drop Outliers F1"
+        ["NB", "KNN"], eval_iqr, title="IQR Drop Outliers Evaluation", percentage=True
     )
-    plt.savefig(os.path.join(config.IMAGES_DIR, "3_outliers_iqr_f1.png"))
+    plt.savefig(os.path.join(config.IMAGES_DIR, "3_outliers_iqr_eval.png"))
     plt.close()
 
     # --- Approach 2: Keep Outliers (Baseline) or Drop via StDev (3) ---
@@ -97,12 +100,12 @@ def run_outliers():
     )
     print(f"      StDev Drop F1 (NB, KNN): {eval_std['f1']}")
     ds.plot_multibar_chart(
-        ["NB", "KNN"], {"StDev Drop": eval_std["f1"]}, title="StDev Drop Outliers F1"
+        ["NB", "KNN"], eval_std, title="StDev Drop Outliers Evaluation", percentage=True
     )
-    plt.savefig(os.path.join(config.IMAGES_DIR, "3_outliers_stdev_f1.png"))
+    plt.savefig(os.path.join(config.IMAGES_DIR, "3_outliers_stdev_eval.png"))
     plt.close()
 
-    # --- Comparison ---
+    # --- Comparison & Selection ---
     avg_iqr = sum(eval_iqr["f1"]) / 2
     avg_std = sum(eval_std["f1"]) / 2
 
@@ -114,8 +117,21 @@ def run_outliers():
         {"IQR Drop": eval_iqr["f1"], "StDev Drop": eval_std["f1"]},
         title="Outliers Comparison (F1 Score)",
         ylabel="F1 Score",
+        percentage=True,
     )
     plt.savefig(os.path.join(config.IMAGES_DIR, "3_outliers_comparison.png"))
+    plt.close()
+
+    # Plot Side-by-Side Evaluation
+    fig, axs = plt.subplots(1, 2, figsize=(12, 5))
+    ds.plot_multibar_chart(
+        ["NB", "KNN"], eval_iqr, title="IQR Drop Outliers", ax=axs[0], percentage=True
+    )
+    ds.plot_multibar_chart(
+        ["NB", "KNN"], eval_std, title="StDev Drop Outliers", ax=axs[1], percentage=True
+    )
+    plt.tight_layout()
+    plt.savefig(os.path.join(config.IMAGES_DIR, "3_outliers_side_by_side.png"))
     plt.close()
 
     best_train = None
@@ -148,9 +164,13 @@ def run_outliers():
     best_nb = ds.run_NB_model(trnX, trnY, tstX, tstY, metric="f1")
     if best_nb:
         prd_nb = best_nb.predict(tstX)
-        cnf_mtx_nb = ds.confusion_matrix(tstY, prd_nb, labels=labels)
-        ds.plot_confusion_matrix(cnf_mtx_nb, labels)
+        cm = confusion_matrix(tstY, prd_nb, labels=labels)
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
+        fig, ax = plt.subplots(figsize=(8, 6))
+        disp.plot(cmap=plt.cm.Blues, ax=ax)
+        ax.grid(False)
         plt.title(f"Confusion Matrix: {best_name} - Naive Bayes")
+        plt.tight_layout()
         plt.savefig(os.path.join(config.IMAGES_DIR, "3_outliers_best_nb_cm.png"))
         plt.close()
 
@@ -158,9 +178,13 @@ def run_outliers():
     best_knn = ds.run_KNN_model(trnX, trnY, tstX, tstY, metric="f1")
     if best_knn:
         prd_knn = best_knn.predict(tstX)
-        cnf_mtx_knn = ds.confusion_matrix(tstY, prd_knn, labels=labels)
-        ds.plot_confusion_matrix(cnf_mtx_knn, labels)
+        cm = confusion_matrix(tstY, prd_knn, labels=labels)
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
+        fig, ax = plt.subplots(figsize=(8, 6))
+        disp.plot(cmap=plt.cm.Blues, ax=ax)
+        ax.grid(False)
         plt.title(f"Confusion Matrix: {best_name} - KNN")
+        plt.tight_layout()
         plt.savefig(os.path.join(config.IMAGES_DIR, "3_outliers_best_knn_cm.png"))
         plt.close()
 

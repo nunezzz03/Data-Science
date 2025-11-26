@@ -41,9 +41,9 @@ def run_balancing():
     )
     print(f"      SMOTE F1 (NB, KNN): {eval_smote['f1']}")
     ds.plot_multibar_chart(
-        ["NB", "KNN"], {"SMOTE": eval_smote["f1"]}, title="SMOTE Balancing F1"
+        ["NB", "KNN"], eval_smote, title="SMOTE Balancing Evaluation", percentage=True
     )
-    plt.savefig(os.path.join(config.IMAGES_DIR, "5_balancing_smote_f1.png"))
+    plt.savefig(os.path.join(config.IMAGES_DIR, "5_balancing_smote_eval.png"))
     plt.close()
 
     # --- Approach 2: Random Undersampling ---
@@ -62,9 +62,9 @@ def run_balancing():
     )
     print(f"      Undersampling F1 (NB, KNN): {eval_rus['f1']}")
     ds.plot_multibar_chart(
-        ["NB", "KNN"], {"Under": eval_rus["f1"]}, title="Undersampling F1"
+        ["NB", "KNN"], eval_rus, title="Undersampling Evaluation", percentage=True
     )
-    plt.savefig(os.path.join(config.IMAGES_DIR, "5_balancing_under_f1.png"))
+    plt.savefig(os.path.join(config.IMAGES_DIR, "5_balancing_under_eval.png"))
     plt.close()
 
     # --- Comparison ---
@@ -79,6 +79,7 @@ def run_balancing():
         {"SMOTE": eval_smote["f1"], "Under": eval_rus["f1"]},
         title="Balancing Comparison (F1 Score)",
         ylabel="F1 Score",
+        percentage=True,
     )
     plt.savefig(os.path.join(config.IMAGES_DIR, "5_balancing_comparison.png"))
     plt.close()

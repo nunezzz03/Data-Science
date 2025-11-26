@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import os
 from itertools import combinations
 
-# Get paths relative to this script's location
+# Get paths relative to this s cript's location
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)  # One level up from data_profiling/
 

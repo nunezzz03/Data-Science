@@ -37,9 +37,9 @@ def run_scaling():
     )
     print(f"      StandardScaler F1 (NB, KNN): {eval_std['f1']}")
     ds.plot_multibar_chart(
-        ["NB", "KNN"], {"Standard": eval_std["f1"]}, title="StandardScaler F1"
+        ["NB", "KNN"], eval_std, title="StandardScaler Evaluation", percentage=True
     )
-    plt.savefig(os.path.join(config.IMAGES_DIR, "4_scaling_standard_f1.png"))
+    plt.savefig(os.path.join(config.IMAGES_DIR, "4_scaling_standard_eval.png"))
     plt.close()
 
     # --- Approach 2: MinMaxScaler ---
@@ -58,10 +58,38 @@ def run_scaling():
     )
     print(f"      MinMaxScaler F1 (NB, KNN): {eval_mm['f1']}")
     ds.plot_multibar_chart(
-        ["NB", "KNN"], {"MinMax": eval_mm["f1"]}, title="MinMaxScaler F1"
+        ["NB", "KNN"], eval_mm, title="MinMaxScaler Evaluation", percentage=True
     )
-    plt.savefig(os.path.join(config.IMAGES_DIR, "4_scaling_minmax_f1.png"))
+    plt.savefig(os.path.join(config.IMAGES_DIR, "4_scaling_minmax_eval.png"))
     plt.close()
+
+    # --- Visualize Scaling Effect (Boxplots) ---
+    # Select variables to plot (exclude binary/one-hot for clarity)
+    vars_to_plot = [c for c in X.columns if X[c].nunique() > 2]
+
+    if vars_to_plot:
+        print(f"   Generating Boxplots for {len(vars_to_plot)} continuous variables...")
+
+        fig, axs = plt.subplots(1, 3, figsize=(20, 10), squeeze=False)
+
+        # Original
+        axs[0, 0].set_title("Original Data")
+        X[vars_to_plot].boxplot(ax=axs[0, 0], rot=90)
+        axs[0, 0].grid(False)
+
+        # Standard
+        axs[0, 1].set_title("Z-score normalization")
+        X_std[vars_to_plot].boxplot(ax=axs[0, 1], rot=90)
+        axs[0, 1].grid(False)
+
+        # MinMax
+        axs[0, 2].set_title("MinMax normalization")
+        X_mm[vars_to_plot].boxplot(ax=axs[0, 2], rot=90)
+        axs[0, 2].grid(False)
+
+        plt.tight_layout()
+        plt.savefig(os.path.join(config.IMAGES_DIR, "4_scaling_boxplots.png"))
+        plt.close()
 
     # --- Comparison ---
     avg_std = sum(eval_std["f1"]) / 2
@@ -75,6 +103,7 @@ def run_scaling():
         {"Standard": eval_std["f1"], "MinMax": eval_mm["f1"]},
         title="Scaling Comparison (F1 Score)",
         ylabel="F1 Score",
+        percentage=True,
     )
     plt.savefig(os.path.join(config.IMAGES_DIR, "4_scaling_comparison.png"))
     plt.close()

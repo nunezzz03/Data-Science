@@ -82,6 +82,14 @@ def run_selection():
     eval_var = ds.evaluate_approach(
         train_var.copy(), test_var.copy(), target=target, metric="f1"
     )
+    ds.plot_multibar_chart(
+        ["NB", "KNN"],
+        eval_var,
+        title=f"Low Variance Filter (thresh={best_thresh_var}) Evaluation",
+        percentage=True,
+    )
+    plt.savefig(os.path.join(config.IMAGES_DIR, "6_selection_variance_eval.png"))
+    plt.close()
 
     # --- Approach 2: Redundancy (Correlation) Filter ---
     print("   Running Approach 2: Redundancy Filter...")
@@ -139,6 +147,14 @@ def run_selection():
     eval_red = ds.evaluate_approach(
         train_red.copy(), test_red.copy(), target=target, metric="f1"
     )
+    ds.plot_multibar_chart(
+        ["NB", "KNN"],
+        eval_red,
+        title=f"Redundancy Filter (thresh={best_thresh_red}) Evaluation",
+        percentage=True,
+    )
+    plt.savefig(os.path.join(config.IMAGES_DIR, "6_selection_redundancy_eval.png"))
+    plt.close()
 
     # --- Comparison ---
     avg_var = sum(eval_var["f1"]) / 2
@@ -154,6 +170,7 @@ def run_selection():
         {"Variance": eval_var["f1"], "Redundancy": eval_red["f1"]},
         title="Feature Selection Comparison (F1 Score)",
         ylabel="F1 Score",
+        percentage=True,
     )
     plt.savefig(os.path.join(config.IMAGES_DIR, "6_selection_comparison.png"))
     plt.close()

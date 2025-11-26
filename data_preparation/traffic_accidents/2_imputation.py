@@ -39,7 +39,10 @@ def run_imputation():
     )
     print(f"      Frequent F1 (NB, KNN): {eval_freq['f1']}")
     ds.plot_multibar_chart(
-        ["NB", "KNN"], {"Frequent": eval_freq["f1"]}, title="Frequent Imputation F1"
+        ["NB", "KNN"],
+        {"Frequent": eval_freq["f1"]},
+        title="Frequent Imputation F1",
+        percentage=True,
     )
     plt.savefig(os.path.join(config.IMAGES_DIR, "2_imputation_frequent_f1.png"))
     plt.close()
@@ -59,7 +62,10 @@ def run_imputation():
     )
     print(f"      KNN F1 (NB, KNN): {eval_knn['f1']}")
     ds.plot_multibar_chart(
-        ["NB", "KNN"], {"KNN": eval_knn["f1"]}, title="KNN Imputation F1"
+        ["NB", "KNN"],
+        {"KNN": eval_knn["f1"]},
+        title="KNN Imputation F1",
+        percentage=True,
     )
     plt.savefig(os.path.join(config.IMAGES_DIR, "2_imputation_knn_f1.png"))
     plt.close()
@@ -76,6 +82,7 @@ def run_imputation():
         {"Frequent": eval_freq["f1"], "KNN": eval_knn["f1"]},
         title="Imputation Comparison (F1 Score)",
         ylabel="F1 Score",
+        percentage=True,
     )
     plt.savefig(os.path.join(config.IMAGES_DIR, "2_imputation_comparison.png"))
     plt.close()

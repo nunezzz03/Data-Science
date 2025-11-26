@@ -1,0 +1,336 @@
+\documentclass[11pt,a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{subcaption}
+
+% High-quality image rendering
+\pdfimageresolution=600
+
+% Page setup
+\geometry{margin=0.75in}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{10pt}
+
+% Title information
+\title{\textbf{Lab 2 - Data Profiling Report}}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+% ============================================================
+\section{Accidents Dataset}
+% ============================================================
+
+% ------------------------------------------------------------
+\subsection{Dimensionality}
+% ------------------------------------------------------------
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/dimensionality/traffic_accidents_records_variables.png}
+    \caption{Records vs Variables}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/dimensionality/traffic_accidents_variable_types.png}
+    \caption{Variable Types}
+\end{subfigure}
+\caption{Dimensionality analysis for Accidents dataset}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{images/dimensionality/traffic_accidents_mv.png}
+\caption{Missing values per variable - Accidents}
+\end{figure}
+
+% ------------------------------------------------------------
+\subsection{Distribution}
+% ------------------------------------------------------------
+
+\subsubsection{Global Overview}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{images/distribution/accidents_global_boxplot.png}
+\caption{Global boxplot - Accidents}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/distribution/accidents_class_distribution.png}
+\caption{Class distribution - Accidents}
+\end{figure}
+
+\subsubsection{Numerical Variables}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/distribution/accidents_single_boxplots.png}
+\caption{Individual boxplots - Accidents}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/distribution/accidents_single_histograms.png}
+\caption{Histograms for numerical variables - Accidents}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/distribution/accidents_histogram_numeric_distribution.png}
+\caption{Probability density functions - Accidents}
+\end{figure}
+
+\subsubsection{Outliers Study}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{images/distribution/accidents_outliers_comparison.png}
+\caption{Outliers comparison (StDev vs IQR) - Accidents}
+\end{figure}
+
+\subsubsection{Symbolic Variables}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/distribution/accidents_histograms_symbolic.png}
+\caption{Histograms for symbolic variables - Accidents}
+\end{figure}
+
+% ------------------------------------------------------------
+\subsection{Granularity}
+% ------------------------------------------------------------
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/granularity/accidents_granularity_crash_date.png}
+\caption{Temporal granularity for crash\_date - Accidents}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/granularity/accidents_granularity_weather_condition.png}
+\caption{Granularity for weather\_condition - Accidents}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/granularity/accidents_granularity_lighting_condition.png}
+\caption{Granularity for lighting\_condition - Accidents}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/granularity/accidents_granularity_roadway_surface_cond.png}
+\caption{Granularity for roadway\_surface\_cond - Accidents}
+\end{figure}
+
+% ------------------------------------------------------------
+\subsection{Sparsity}
+% ------------------------------------------------------------
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/sparsity_study/accidents_sparsity_study.png}
+\caption{Sparsity study (scatter plots) - Accidents}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/sparsity_per_class/accidents_sparsity_per_class_study.png}
+\caption{Sparsity per class - Accidents}
+\end{figure}
+
+% ------------------------------------------------------------
+\subsection{Correlation}
+% ------------------------------------------------------------
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{images/correlation_matrix/accidents_correlation_analysis.png}
+\caption{Correlation matrix - Accidents}
+\end{figure}
+
+\clearpage
+
+% ============================================================
+\section{Flights Dataset}
+% ============================================================
+
+% ------------------------------------------------------------
+\subsection{Dimensionality}
+% ------------------------------------------------------------
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/dimensionality/Combined_Flights_2022_records_variables.png}
+    \caption{Records vs Variables}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{images/dimensionality/Combined_Flights_2022_variable_types.png}
+    \caption{Variable Types}
+\end{subfigure}
+\caption{Dimensionality analysis for Flights dataset}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{images/dimensionality/Combined_Flights_2022_mv.png}
+\caption{Missing values per variable - Flights}
+\end{figure}
+
+% ------------------------------------------------------------
+\subsection{Distribution}
+% ------------------------------------------------------------
+
+\subsubsection{Global Overview}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{images/distribution/flights_global_boxplot.png}
+\caption{Global boxplot - Flights}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/distribution/flights_class_distribution.png}
+\caption{Class distribution - Flights}
+\end{figure}
+
+\subsubsection{Numerical Variables}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/distribution/flights_single_boxplots.png}
+\caption{Individual boxplots - Flights}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/distribution/flights_single_histograms.png}
+\caption{Histograms for numerical variables - Flights}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/distribution/flights_histogram_numeric_distribution.png}
+\caption{Probability density functions - Flights}
+\end{figure}
+
+\subsubsection{Outliers Study}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{images/distribution/flights_outliers_comparison.png}
+\caption{Outliers comparison (StDev vs IQR) - Flights}
+\end{figure}
+
+\subsubsection{Symbolic Variables}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/distribution/flights_histograms_symbolic.png}
+\caption{Histograms for symbolic variables - Flights}
+\end{figure}
+
+% ------------------------------------------------------------
+\subsection{Granularity}
+% ------------------------------------------------------------
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/granularity/flights_granularity_FlightDate.png}
+\caption{Temporal granularity for FlightDate - Flights}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/granularity/flights_granularity_Origin.png}
+\caption{Granularity for Origin - Flights}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/granularity/flights_granularity_Dest.png}
+\caption{Granularity for Dest - Flights}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/granularity/flights_granularity_Marketing_Airline_Network.png}
+\caption{Granularity for Marketing\_Airline\_Network - Flights}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/granularity/flights_granularity_Operated_or_Branded_Code_Share_Partners.png}
+\caption{Granularity for Operated\_or\_Branded\_Code\_Share\_Partners - Flights}
+\end{figure}
+
+% ------------------------------------------------------------
+\subsection{Sparsity}
+% ------------------------------------------------------------
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/sparsity_study/flights_sparsity_study.png}
+\caption{Sparsity study (scatter plots) - Flights}
+\end{figure}
+
+% Note: Include chunk images if they exist (comment out if not generated)
+\IfFileExists{images/sparsity_per_class/flights_sparsity_per_class_study_chunk1.png}{
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/sparsity_per_class/flights_sparsity_per_class_study_chunk1.png}
+\caption{Sparsity per class - Flights (Chunk 1)}
+\end{figure}
+}{}
+
+\IfFileExists{images/sparsity_per_class/flights_sparsity_per_class_study_chunk2.png}{
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/sparsity_per_class/flights_sparsity_per_class_study_chunk2.png}
+\caption{Sparsity per class - Flights (Chunk 2)}
+\end{figure}
+}{}
+
+\IfFileExists{images/sparsity_per_class/flights_sparsity_per_class_study_chunk3.png}{
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/sparsity_per_class/flights_sparsity_per_class_study_chunk3.png}
+\caption{Sparsity per class - Flights (Chunk 3)}
+\end{figure}
+}{}
+
+% If chunks don't exist, try single file
+\IfFileExists{images/sparsity_per_class/flights_sparsity_per_class_study.png}{
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/sparsity_per_class/flights_sparsity_per_class_study.png}
+\caption{Sparsity per class - Flights}
+\end{figure}
+}{}
+
+% ------------------------------------------------------------
+\subsection{Correlation}
+% ------------------------------------------------------------
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{images/correlation_matrix/flights_correlation_analysis.png}
+\caption{Correlation matrix - Flights}
+\end{figure}
+
+\end{document}
