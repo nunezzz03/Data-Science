@@ -9,7 +9,7 @@ def process_dataset(
     print(f"--- Processing {filename} ---")
     try:
         # Read file from datasets folder
-        filepath = os.path.join("data/raw", filename)
+        filepath = os.path.join("../data/raw", filename)
         df = pd.read_csv(filepath)
         #Dimensionality Summary for Raw data
         summary_raw = {
@@ -86,7 +86,7 @@ def process_dataset(
             )
 
         # 5. Save to data/processed folder
-        output_dir = "data/processed"
+        output_dir = "../data/processed"
         os.makedirs(output_dir, exist_ok=True)
         train_path = os.path.join(output_dir, f"{output_tag}_train.csv")
         test_path = os.path.join(output_dir, f"{output_tag}_test.csv")

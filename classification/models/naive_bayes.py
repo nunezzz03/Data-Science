@@ -20,8 +20,8 @@ def naive_Bayes_study(file_tag, target_col):
 
     # 1. Load Data
     try:
-        train_df = pd.read_csv(f"data/processed/{file_tag}_train.csv")
-        test_df = pd.read_csv(f"data/processed/{file_tag}_test.csv")
+        train_df = pd.read_csv(f"../data/processed/{file_tag}_train.csv")
+        test_df = pd.read_csv(f"../data/processed/{file_tag}_test.csv")
     except FileNotFoundError:
         print(f"   ⚠️ Skipping {file_tag} (Files not found)")
         return
