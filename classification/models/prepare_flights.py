@@ -5,88 +5,71 @@ from sklearn.preprocessing import StandardScaler, OrdinalEncoder
 import sys
 import os
 
-# =======================================================================================
-# 🔧 CORREÇÃO DE PATHS (Para resolver o erro "No module named 'config'")
-# =======================================================================================
-# Obter o caminho da raiz do projeto
-# __file__ = .../classification/models/prepare_flights.py
+# Fix paths to ensure 'utils' can be imported
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-
-# 1. Adicionar a raiz ao path (para encontrar 'utils')
 if project_root not in sys.path:
     sys.path.append(project_root)
 
-# 2. Adicionar a pasta 'utils' ao path (CRÍTICO: para o dslabs encontrar o config.py)
 utils_path = os.path.join(project_root, 'utils')
 if utils_path not in sys.path:
     sys.path.append(utils_path)
 
-# Agora os imports já funcionam
 from utils.dslabs_functions import (
     mvi_by_filling, 
     dummify, 
     select_low_variance_variables, 
-    select_redundant_variables,
     determine_outlier_thresholds_for_var,
     get_variable_types
 )
 
-# =======================================================================================
-# 🔄 FUNÇÃO DE BALANCEAMENTO MANUAL (Substitui o SMOTE para não precisares de instalar nada)
-# =======================================================================================
 def random_oversampling(X, y):
     """
-    Realiza balanceamento duplicando exemplos da classe minoritária (Pandas puro).
-    Evita o erro do 'imblearn'.
+    Performs class balancing by randomly duplicating minority class examples (Pandas only).
     """
-    print(f"      ⚖️ A balancear classes (Random Oversampling)...")
-    # Juntar X e y
+    print(f"      ⚖️ Balancing classes (Random Oversampling)...")
+    
+    # Merge X and y
     df = pd.concat([X, y], axis=1)
     target_col = y.name
     
-    # Contar as classes
+    # Count classes
     class_counts = df[target_col].value_counts()
     majority_class = class_counts.idxmax()
     minority_class = class_counts.idxmin()
     
-    # Separar os dados
+    # Separate data
     df_majority = df[df[target_col] == majority_class]
     df_minority = df[df[target_col] == minority_class]
     
-    # Duplicar a classe minoritária até ter o mesmo tamanho da maioritária
+    # Duplicate minority class
     df_minority_over = df_minority.sample(len(df_majority), replace=True, random_state=42)
     
-    # Juntar tudo
+    # Recombine
     df_balanced = pd.concat([df_majority, df_minority_over], axis=0)
-    
-    # Separar X e y novamente
     y_balanced = df_balanced[target_col]
     X_balanced = df_balanced.drop(columns=[target_col])
     
-    print(f"         -> Classes balanceadas: {y_balanced.value_counts().to_dict()}")
+    print(f"         -> Balanced classes: {y_balanced.value_counts().to_dict()}")
     return X_balanced, y_balanced
 
-# =======================================================================================
-# 🚀 FUNÇÃO PRINCIPAL
-# =======================================================================================
 def prepare_flights_dataset():
-    print("\n✈️ A INICIAR PREPARAÇÃO DO DATASET FLIGHTS (Estilo Lab)...")
+    print("\n✈️ STARTING FLIGHTS DATASET PREPARATION (Lab Style)...")
     
-    # --- 1. CARREGAMENTO E LEAKAGE ---
+    # 1. Loading Data and Removing Leakage
     filename = "data/raw/Combined_Flights_2022.csv"
-    filepath = os.path.join(project_root, filename) # Caminho absoluto para não falhar
+    filepath = os.path.join(project_root, filename)
     
     if not os.path.exists(filepath):
-        print(f"❌ Erro: Ficheiro não encontrado em {filepath}")
+        print(f"❌ Error: File not found at {filepath}")
         return
 
     df = pd.read_csv(filepath, na_values="", parse_dates=True)
     
-    # Amostragem (10% para rapidez)
+    # Sampling (10% for performance)
     df = df.sample(frac=0.1, random_state=42)
-    print(f"   1. Dados carregados e amostrados: {df.shape}")
+    print(f"   1. Data loaded and sampled: {df.shape}")
 
-    # Remover Leakage e IDs
+    # Remove Leakage columns and unique IDs
     leakage_cols = [
         "ArrTime", "ArrDelayMinutes", "ArrDelay", "ActualElapsedTime",
         "WheelsOn", "TaxiIn", "ArrivalDelayGroups", "ArrTimeBlk",
@@ -96,82 +79,69 @@ def prepare_flights_dataset():
     
     target = "ArrDel15"
     
-    # --- 2. MISSING VALUES (mvi_by_filling) ---
-    # Usa a função do dslabs tal como no exemplo
+    # 2. Missing Values (Imputation)
     df = mvi_by_filling(df, strategy="frequent")
-    print(f"   2. Missing Values tratados. Dimensão: {df.shape}")
+    print(f"   2. Missing Values handled. Shape: {df.shape}")
 
-    # --- 3. OUTLIERS (Abordagem da Professora) ---
+    # 3. Outliers (Standard Deviation Method)
     numeric_vars = get_variable_types(df)["numeric"]
     if target in numeric_vars: numeric_vars.remove(target)
     
     summary5 = df[numeric_vars].describe()
     initial_rows = df.shape[0]
     
-    print("   3. A remover outliers...")
+    print("   3. Removing outliers...")
     for var in numeric_vars:
         top_threshold, bottom_threshold = determine_outlier_thresholds_for_var(summary5[var])
-        # Identificar outliers
         outliers = df[(df[var] > top_threshold) | (df[var] < bottom_threshold)]
-        # Dropar outliers
         df.drop(outliers.index, axis=0, inplace=True)
         
-    print(f"      -> Removidos {initial_rows - df.shape[0]} registos. Dimensão atual: {df.shape}")
+    print(f"      -> Removed {initial_rows - df.shape[0]} records. Current shape: {df.shape}")
 
-    # --- 4. FEATURE SELECTION ---
-    # Variância
+    # 4. Feature Selection (Low Variance)
     vars_to_drop = select_low_variance_variables(df, max_threshold=0.1, target=target)
     df = df.drop(columns=vars_to_drop)
-    print(f"   4. Feature Selection completa (Low Variance). Variáveis: {df.shape[1]}")
+    print(f"   4. Feature Selection complete (Low Variance). Variables: {df.shape[1]}")
 
-    # --- 5. SCALING (StandardScaler) ---
-    # Aplicar Z-Score normalization mantendo a estrutura do DataFrame
-    # Recalcular variáveis numéricas porque algumas podem ter sido removidas no passo anterior
+    # 5. Scaling (StandardScaler)
     numeric_vars = get_variable_types(df)["numeric"]
     if target in numeric_vars: numeric_vars.remove(target)
     
     scaler = StandardScaler(with_mean=True, with_std=True, copy=True).fit(df[numeric_vars])
     df_scaled = df.copy()
     df_scaled[numeric_vars] = scaler.transform(df[numeric_vars])
-    print("   5. Scaling aplicado (StandardScaler).")
+    print("   5. Scaling applied (StandardScaler).")
 
-    # ============================================================
-    # CRIAÇÃO DOS DATASETS FINAIS (Ordinal vs One-Hot)
-    # ============================================================
-    
+    # Create Final Datasets (Ordinal vs One-Hot)
     y = df_scaled[target]
     X = df_scaled.drop(columns=[target])
     symbolic_vars = get_variable_types(X)["symbolic"]
 
-    # --- ABORDAGEM A: ONE-HOT ENCODING (dummify) ---
-    print("\n   🅰️  A criar versão One-Hot Encoding...")
+    # A: One-Hot Encoding
+    print("\n   🅰️  Creating One-Hot Encoding version...")
     X_onehot = dummify(X, symbolic_vars)
     
-    # Split
+    # Split and Balance
     X_train, X_test, y_train, y_test = train_test_split(X_onehot, y, train_size=0.7, stratify=y, random_state=42)
-    
-    # Balanceamento (Random Oversampling)
     X_train_bal, y_train_bal = random_oversampling(X_train, y_train)
     
     save_split("flights_onehot", X_train_bal, y_train_bal, X_test, y_test)
 
-    # --- ABORDAGEM B: ORDINAL ENCODING ---
-    print("\n   🅱️  A criar versão Ordinal Encoding...")
+    # B: Ordinal Encoding
+    print("\n   🅱️  Creating Ordinal Encoding version...")
     X_ordinal = X.copy()
     enc = OrdinalEncoder()
-    # Converter para string para garantir que o OrdinalEncoder não falha
+    
+    # Ensure variables are strings to prevent errors
     X_ordinal[symbolic_vars] = X_ordinal[symbolic_vars].astype(str)
     X_ordinal[symbolic_vars] = enc.fit_transform(X_ordinal[symbolic_vars])
     
-    # Split
     X_train_ord, X_test_ord, y_train_ord, y_test_ord = train_test_split(X_ordinal, y, train_size=0.7, stratify=y, random_state=42)
-    
-    # Balanceamento (Random Oversampling)
     X_train_ord_bal, y_train_ord_bal = random_oversampling(X_train_ord, y_train_ord)
     
     save_split("flights_ordinal", X_train_ord_bal, y_train_ord_bal, X_test_ord, y_test_ord)
 
-    print("\n✅ FIM! Ficheiros guardados em data/processed/")
+    print("\n✅ DONE! Files saved in data/processed/")
 
 def save_split(prefix, X_train, y_train, X_test, y_test):
     output_dir = os.path.join(project_root, "data/processed")
@@ -182,7 +152,7 @@ def save_split(prefix, X_train, y_train, X_test, y_test):
     
     train.to_csv(f"{output_dir}/{prefix}_train.csv", index=False)
     test.to_csv(f"{output_dir}/{prefix}_test.csv", index=False)
-    print(f"      💾 Guardado: {prefix} (Train: {train.shape}, Test: {test.shape})")
+    print(f"      💾 Saved: {prefix} (Train: {train.shape}, Test: {test.shape})")
 
 if __name__ == "__main__":
     prepare_flights_dataset()
