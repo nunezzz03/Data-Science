@@ -38,9 +38,7 @@ def run_outliers():
     upper_bound = Q3 + 1.5 * IQR
 
     # Mask for outliers
-    outliers_mask = (
-        (df_iqr[numeric_vars] < lower_bound) | (df_iqr[numeric_vars] > upper_bound)
-    ).any(axis=1)
+    outliers_mask = ((df_iqr[numeric_vars] < lower_bound) | (df_iqr[numeric_vars] > upper_bound)).sum(axis=1) > 2
     df_iqr = df_iqr[~outliers_mask]
 
     print(
@@ -80,9 +78,7 @@ def run_outliers():
     lower_bound = mean - 3 * std
     upper_bound = mean + 3 * std
 
-    outliers_mask_std = (
-        (df_std[numeric_vars] < lower_bound) | (df_std[numeric_vars] > upper_bound)
-    ).any(axis=1)
+    outliers_mask_std = ((df_std[numeric_vars] < lower_bound) | (df_std[numeric_vars] > upper_bound)).sum(axis=1) > 2
     df_std = df_std[~outliers_mask_std]
 
     print(

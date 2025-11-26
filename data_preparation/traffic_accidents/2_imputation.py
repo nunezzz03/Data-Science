@@ -4,7 +4,7 @@ import os
 from sklearn.model_selection import train_test_split
 import lab3_config as config
 import dslabs_functions as ds
-
+import numpy as np
 
 def run_imputation():
     print("\n[Step 2] Missing Value Imputation...")
@@ -14,6 +14,7 @@ def run_imputation():
         return
 
     df = pd.read_csv(config.FILE_ENCODED)
+    df = df.replace(-1, np.nan)
     target = config.TARGET
 
     # Check for missing values

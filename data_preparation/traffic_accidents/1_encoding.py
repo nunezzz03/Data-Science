@@ -37,7 +37,7 @@ def run_encoding():
         "injuries_reported_not_evident",
         "injuries_no_indication",
         "damage",  # Often correlated with severity/type directly
-        "prim_contributory_cause",
+        "prim_contributory_cause", "num_units"
     ]
     cols_to_drop = [c for c in leakage_cols if c in df.columns]
     if cols_to_drop:
@@ -150,17 +150,17 @@ def run_encoding():
     if "weather_condition" in df.columns and "roadway_surface_cond" in df.columns:
         df["weather_surface_interaction"] = (
             df["weather_condition"] * df["roadway_surface_cond"]
-        )
+        )/16
 
     # Interaction: lighting * hour
     if "lighting_condition" in df.columns and "crash_hour" in df.columns:
-        df["lighting_hour_interaction"] = df["lighting_condition"] * df["crash_hour"]
+        df["lighting_hour_interaction"] = (df["lighting_condition"] * df["crash_hour"])/16
 
     # Interaction: trafficway * intersection
     if "trafficway_type" in df.columns and "intersection_related_i" in df.columns:
         df["trafficway_intersection_interaction"] = (
             df["trafficway_type"] * df["intersection_related_i"]
-        )
+        )/16
 
     # Risk Score
     risk_features = ["weather_condition", "roadway_surface_cond", "lighting_condition"]
