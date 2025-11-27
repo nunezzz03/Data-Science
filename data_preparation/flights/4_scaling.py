@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from utils.dslabs_functions import get_variable_types
 import lab3_config as config
-import utils as flight_utils
+import flights_utils
 
 
 def run_scaling():

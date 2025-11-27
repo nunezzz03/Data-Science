@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, os.path.dirname(__file__))
 
 import lab3_config as config
-import utils as flight_utils
+import flights_utils
 
 
 def run_balancing():
