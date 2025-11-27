@@ -30,7 +30,7 @@ DATASETS = [
     {
         "name": "Flights",
         "file": os.path.join(PROJECT_ROOT, "data", "raw", "Combined_Flights_2022.csv"),
-        "target": "CANCELLED",
+        "target": "Cancelled",
     },
 ]
 
