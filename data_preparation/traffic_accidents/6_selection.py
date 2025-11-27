@@ -4,6 +4,8 @@ import os
 from sklearn.model_selection import train_test_split
 import lab3_config as config
 import dslabs_functions as ds
+import shutil
+import math
 
 
 def run_selection():
@@ -34,9 +36,9 @@ def run_selection():
         file_tag="traffic_accidents",
     )
 
-    # Move the generated plot to images dir
-    import shutil
+    plt.close()
 
+    # Move the generated plot to images dir
     try:
         shutil.move(
             "traffic_accidents_fs_low_var_f1_study.png",
@@ -46,9 +48,8 @@ def run_selection():
         print(f"Warning: Could not move variance study plot: {e}")
 
     # Find best threshold from results
-    max_threshold = 0.5
-    lag = 0.05
-    import math
+    max_threshold = 0.25
+    lag = 0.01
 
     options_var = [
         round(i * lag, 3) for i in range(1, math.ceil(max_threshold / lag + lag))
@@ -82,6 +83,8 @@ def run_selection():
     eval_var = ds.evaluate_approach(
         train_var.copy(), test_var.copy(), target=target, metric="f1"
     )
+
+    plt.figure()
     ds.plot_multibar_chart(
         ["NB", "KNN"],
         eval_var,
@@ -89,7 +92,7 @@ def run_selection():
         percentage=True,
     )
     plt.savefig(os.path.join(config.IMAGES_DIR, "6_selection_variance_eval.png"))
-    plt.close()
+    plt.close()  # Close immediately after saving
 
     # --- Approach 2: Redundancy (Correlation) Filter ---
     print("   Running Approach 2: Redundancy Filter...")
@@ -103,6 +106,8 @@ def run_selection():
         metric="f1",
         file_tag="traffic_accidents",
     )
+
+    plt.close()
 
     # Move the generated plot to images dir
     try:
@@ -147,6 +152,8 @@ def run_selection():
     eval_red = ds.evaluate_approach(
         train_red.copy(), test_red.copy(), target=target, metric="f1"
     )
+
+    plt.figure()
     ds.plot_multibar_chart(
         ["NB", "KNN"],
         eval_red,
@@ -165,6 +172,7 @@ def run_selection():
     )
 
     # Plot Comparison Chart
+    plt.figure()
     ds.plot_multibar_chart(
         ["NB", "KNN"],
         {"Variance": eval_var["f1"], "Redundancy": eval_red["f1"]},
@@ -206,6 +214,8 @@ def run_selection():
     if best_nb:
         prd_nb = best_nb.predict(tstX)
         cnf_mtx_nb = ds.confusion_matrix(tstY, prd_nb, labels=labels)
+
+        plt.figure()
         ds.plot_confusion_matrix(cnf_mtx_nb, labels)
         plt.title(f"Confusion Matrix: {best_name} - Naive Bayes")
         plt.savefig(os.path.join(config.IMAGES_DIR, "6_selection_best_nb_cm.png"))
@@ -216,6 +226,9 @@ def run_selection():
     if best_knn:
         prd_knn = best_knn.predict(tstX)
         cnf_mtx_knn = ds.confusion_matrix(tstY, prd_knn, labels=labels)
+
+        ### FIX ADDED: New figure
+        plt.figure()
         ds.plot_confusion_matrix(cnf_mtx_knn, labels)
         plt.title(f"Confusion Matrix: {best_name} - KNN")
         plt.savefig(os.path.join(config.IMAGES_DIR, "6_selection_best_knn_cm.png"))
