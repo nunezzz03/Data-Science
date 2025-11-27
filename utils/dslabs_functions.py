@@ -542,6 +542,12 @@ def study_variance_for_feature_selection(
 
         train_copy: DataFrame = train.drop(vars2drop, axis=1, inplace=False)
         test_copy: DataFrame = test.drop(vars2drop, axis=1, inplace=False)
+
+        if train_copy.shape[1] <= 1:  # Only target left or empty
+            results["NB"].append(0)
+            results["KNN"].append(0)
+            continue
+
         eval: dict[str, list] | None = evaluate_approach(
             train_copy, test_copy, target=target, metric=metric
         )
@@ -557,7 +563,7 @@ def study_variance_for_feature_selection(
         ylabel=metric,
         percentage=True,
     )
-    savefig(f"images/{file_tag}_fs_low_var_{metric}_study.png")
+    savefig(f"{file_tag}_fs_low_var_{metric}_study.png")
     return results
 
 
@@ -570,7 +576,8 @@ def select_redundant_variables(
     vars2drop: list = []
     for v1 in variables:
         vars_corr: Series = (corr_matrix[v1]).loc[corr_matrix[v1] >= min_threshold]
-        vars_corr.drop(v1, inplace=True)
+        if v1 in vars_corr.index:
+            vars_corr.drop(v1, inplace=True)
         if len(vars_corr) > 1:
             lst_corr = list(vars_corr.index)
             for v2 in lst_corr:
@@ -601,7 +608,8 @@ def study_redundancy_for_feature_selection(
         vars2drop: list = []
         for v1 in variables:
             vars_corr: Series = (corr_matrix[v1]).loc[corr_matrix[v1] >= thresh]
-            vars_corr.drop(v1, inplace=True)
+            if v1 in vars_corr.index:
+                vars_corr.drop(v1, inplace=True)
             if len(vars_corr) > 1:
                 lst_corr = list(vars_corr.index)
                 for v2 in lst_corr:
@@ -625,7 +633,7 @@ def study_redundancy_for_feature_selection(
         ylabel=metric,
         percentage=True,
     )
-    savefig(f"images/{file_tag}_fs_redundancy_{metric}_study.png")
+    savefig(f"{file_tag}_fs_redundancy_{metric}_study.png")
     return results
 
 
@@ -660,7 +668,7 @@ CLASS_EVAL_METRICS: dict[str, Callable] = {
 }
 
 
-def run_NB(trnX, trnY, tstX, tstY, metric: str = "accuracy") -> dict[str, float]:
+def run_NB_model(trnX, trnY, tstX, tstY, metric: str = "accuracy"):
     estimators: dict[str, GaussianNB | MultinomialNB | BernoulliNB] = {
         "GaussianNB": GaussianNB(),
         "MultinomialNB": MultinomialNB(),
@@ -668,15 +676,23 @@ def run_NB(trnX, trnY, tstX, tstY, metric: str = "accuracy") -> dict[str, float]
     }
     best_model: GaussianNB | MultinomialNB | BernoulliNB = None  # type: ignore
     best_performance: float = 0.0
-    eval: dict[str, float] = {}
 
     for clf in estimators:
-        estimators[clf].fit(trnX, trnY)
+        try:
+            estimators[clf].fit(trnX, trnY)
+        except ValueError:
+            continue
         prdY: ndarray = estimators[clf].predict(tstX)
         performance: float = CLASS_EVAL_METRICS[metric](tstY, prdY)
         if performance - best_performance > DELTA_IMPROVE:
             best_performance = performance
             best_model = estimators[clf]
+    return best_model
+
+
+def run_NB(trnX, trnY, tstX, tstY, metric: str = "accuracy") -> dict[str, float]:
+    best_model = run_NB_model(trnX, trnY, tstX, tstY, metric)
+    eval: dict[str, float] = {}
     if best_model is not None:
         prd: ndarray = best_model.predict(tstX)
         for key in CLASS_EVAL_METRICS:
@@ -684,11 +700,11 @@ def run_NB(trnX, trnY, tstX, tstY, metric: str = "accuracy") -> dict[str, float]
     return eval
 
 
-def run_KNN(trnX, trnY, tstX, tstY, metric="accuracy") -> dict[str, float]:
+def run_KNN_model(trnX, trnY, tstX, tstY, metric="accuracy"):
     kvalues: list[int] = [1] + [i for i in range(5, 26, 5)]
     best_model: KNeighborsClassifier = None  # type: ignore
     best_performance: float = 0
-    eval: dict[str, float] = {}
+
     for k in kvalues:
         clf = KNeighborsClassifier(n_neighbors=k, metric="euclidean")
         clf.fit(trnX, trnY)
@@ -696,7 +712,13 @@ def run_KNN(trnX, trnY, tstX, tstY, metric="accuracy") -> dict[str, float]:
         performance: float = CLASS_EVAL_METRICS[metric](tstY, prdY)
         if performance - best_performance > DELTA_IMPROVE:
             best_performance = performance
-            best_model: KNeighborsClassifier = clf
+            best_model = clf
+    return best_model
+
+
+def run_KNN(trnX, trnY, tstX, tstY, metric="accuracy") -> dict[str, float]:
+    best_model = run_KNN_model(trnX, trnY, tstX, tstY, metric)
+    eval: dict[str, float] = {}
     if best_model is not None:
         prd: ndarray = best_model.predict(tstX)
         for key in CLASS_EVAL_METRICS:
@@ -749,6 +771,7 @@ def plot_confusion_matrix(cnf_matrix: ndarray, classes_names: ndarray, ax: Axes 
     ax.set_yticks(tick_marks)
     ax.set_xticklabels(classes_names)
     ax.set_yticklabels(classes_names)
+    ax.grid(False)  # Disable grid lines that cross the middle of squares
     ax.imshow(cnf_matrix, interpolation="nearest", cmap=cmap_blues)
 
     for i, j in product(range(cnf_matrix.shape[0]), range(cnf_matrix.shape[1])):
