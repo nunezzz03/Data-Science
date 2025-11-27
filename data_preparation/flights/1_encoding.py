@@ -24,7 +24,7 @@ def run_encoding():
     print("\n" + "=" * 60)
     print("STEP 1: VARIABLE ENCODING")
     print("=" * 60)
-    
+
     # Load raw data
     print(f"\n   Loading data from {config.RAW_DATA}")
     df = pd.read_csv(config.RAW_DATA, na_values="", parse_dates=True)
@@ -32,7 +32,7 @@ def run_encoding():
     # Sample for performance
     df = df.sample(frac=config.SAMPLE_FRAC, random_state=config.RANDOM_STATE)
     print(f"   Sampled {config.SAMPLE_FRAC*100}%: {df.shape}")
-    
+
     # Remove leakage columns
     df = df.drop(columns=[c for c in config.LEAKAGE_COLS if c in df.columns])
     print(f"   Removed leakage columns: {df.shape}")
