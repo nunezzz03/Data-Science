@@ -41,8 +41,8 @@ def run_encoding():
     print("=" * 60)
 
     # Load raw data
-    print(f"\n   Loading data from {config.RAW_DATA_PATH2}")
-    df = pd.read_csv(config.RAW_DATA_PATH2, na_values="", parse_dates=True)
+    print(f"\n   Loading data from {config.RAW_DATA_PATH}")
+    df = pd.read_csv(config.RAW_DATA_PATH, na_values="", parse_dates=True)
 
     # Sample for performance
     df = df.sample(frac=config.SAMPLE_FRAC, random_state=config.RANDOM_STATE)

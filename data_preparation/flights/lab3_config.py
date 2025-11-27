@@ -5,8 +5,7 @@ import sys
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
-RAW_DATA_PATH = os.path.join(DATA_DIR, "raw", "traffic_accidents.csv")
-RAW_DATA_PATH2 = os.path.join(DATA_DIR, "raw", "Combined_Flights_2022.csv")
+RAW_DATA_PATH = os.path.join(DATA_DIR, "raw", "Combined_Flights_2022.csv")
 PREPARED_DATA_DIR = os.path.join(DATA_DIR, "prepared", "flights")
 IMAGES_DIR = os.path.join(PROJECT_ROOT, "images", "lab3", "flights")
 
