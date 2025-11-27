@@ -20,13 +20,13 @@ def evaluate_models(X_train, y_train, X_test, y_test, approach_name=""):
     nb = GaussianNB()
     nb.fit(X_train, y_train)
     y_pred_nb = nb.predict(X_test)
-    results['NB'] = f1_score(y_test, y_pred_nb, average='weighted', zero_division=0)
+    results['NB'] = f1_score(y_test, y_pred_nb, pos_label=True, average='binary', zero_division=0)
     
     # KNN
     knn = KNeighborsClassifier(n_neighbors=config.KNN_NEIGHBORS)
     knn.fit(X_train, y_train)
     y_pred_knn = knn.predict(X_test)
-    results['KNN'] = f1_score(y_test, y_pred_knn, average='weighted', zero_division=0)
+    results['KNN'] = f1_score(y_test, y_pred_knn, pos_label=True, average='binary', zero_division=0)
     
     # Average F1
     results['AVG'] = (results['NB'] + results['KNN']) / 2

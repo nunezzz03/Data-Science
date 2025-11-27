@@ -82,3 +82,5 @@ LEAKAGE_COLS = [
 # Model evaluation
 KNN_NEIGHBORS = 5
 EVALUATION_METRIC = "f1"  # Use F1 score for comparison
+
+
