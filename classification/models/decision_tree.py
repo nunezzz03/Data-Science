@@ -10,7 +10,7 @@ os.makedirs("images", exist_ok=True)
 # === CONFIGURATION FOR 2 DATASETS ===
 datasets = [
     {"name": "Accidents", "file_tag": "accidents", "target": "crash_type"},
-    {"name": "Flights", "file_tag": "flights", "target": "ArrDel15"},
+    {"name": "Flights", "file_tag": "flights", "target": "Cancelled"},
 ]
 
 

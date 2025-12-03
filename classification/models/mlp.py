@@ -15,7 +15,7 @@ os.makedirs("images", exist_ok=True)
 # Configuration for 2 datasets
 datasets = [
     {"name": "Accidents", "file_tag": "accidents", "target": "crash_type"},
-    {"name": "Flights", "file_tag": "flights", "target": "ArrDel15"},
+    {"name": "Flights", "file_tag": "flights", "target": "Cancelled"},
 ]
 
 

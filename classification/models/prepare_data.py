@@ -107,24 +107,24 @@ print("\n🔧 FIXED DATA PREPARATION - Addressing Data Leakage Issues\n")
 print("1️⃣ ACCIDENTS DATASET")
 process_dataset("traffic_accidents.csv", "crash_type", "accidents")
 
-# 2. Flights - Remove ALL features only known after arrival (DATA LEAKAGE FIX)
-print("\n2️⃣ FLIGHTS DATASET - FIXED DATA LEAKAGE")
-leakage_features = [
-    "ArrTime",  # Only known after landing
-    "ArrDelayMinutes",  # Contains the answer!
-    "ArrDelay",  # Contains the answer!
-    "ActualElapsedTime",  # Only known after landing
-    "WheelsOn",  # Only known after landing
-    "TaxiIn",  # Only known after landing
-    "ArrivalDelayGroups",  # Derived from target
-    "ArrTimeBlk",  # Only known after landing
+# 2. Flights - Target is "Cancelled"
+print("\n2️⃣ FLIGHTS DATASET - Target: Cancelled")
+# Remove features related to arrival, as they are not known at departure time
+# Also remove ArrDel15 as it's a different target
+cols_to_exclude_flights = [
+    "ArrTime",
+    "ArrDelayMinutes",
+    "ArrDel15",
+    "ActualElapsedTime",
+    "WheelsOn",
+    "TaxiIn",
 ]
 process_dataset(
     "Combined_Flights_2022.csv",
-    "ArrDel15",
+    "Cancelled",
     "flights",
     sample_fraction=0.1,
-    exclude_cols=leakage_features,
+    exclude_cols=cols_to_exclude_flights,
 )
 
 print("\n✅ ALL DATASETS PROCESSED WITH FIXES APPLIED!")

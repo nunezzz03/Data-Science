@@ -1,5 +1,6 @@
 from matplotlib.pyplot import rcParams, style
 from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.colors import ListedColormap
 from warnings import simplefilter
 from cycler import cycler
 import os
@@ -106,3 +107,13 @@ rcParams["boxplot.meanprops.color"] = my_palette["purple"]
 rcParams["boxplot.meanprops.markeredgecolor"] = my_palette["purple"]
 rcParams["boxplot.meanprops.markerfacecolor"] = my_palette["purple"]
 rcParams["boxplot.medianprops.color"] = my_palette["green"]
+
+# Cores para gráficos
+LINE_COLOR = "blue"
+FILL_COLOR = "lightblue"
+PAST_COLOR = "blue"
+FUTURE_COLOR = "orange"
+PRED_PAST_COLOR = "green"
+PRED_FUTURE_COLOR = "red"
+ACTIVE_COLORS = ["red", "blue", "green", "orange", "purple", "cyan", "magenta", "yellow", "black", "white"]
+cmap_blues = ListedColormap(["#D0E6F0", "#88C4E3", "#41A3D6", "#0082C8"])

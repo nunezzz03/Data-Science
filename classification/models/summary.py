@@ -55,7 +55,7 @@ for ds in datasets:
     if name == "Accidents":
         target = "crash_type"
     elif name == "Flights":
-        target = "ArrDel15"
+        target = "Cancelled"
 
     trnX = train_df.drop(columns=[target])
     trnY = train_df[target]
