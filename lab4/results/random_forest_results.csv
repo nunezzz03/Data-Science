@@ -1,0 +1,3 @@
+model,params,accuracy,precision,recall,f1,dataset
+RandomForest,"d=7, f=0.9, n=100",0.8433717671040897,0.8048481645204689,0.9513815920256723,0.8720017699806083,Traffic Accidents
+RandomForest,"d=2, f=0.1, n=100",0.9701675521046179,0.0,0.0,0.0,Flights
