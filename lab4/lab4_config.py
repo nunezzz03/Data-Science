@@ -12,7 +12,8 @@ PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 # Data paths
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 RAW_DATA_DIR = os.path.join(DATA_DIR, "raw")
-PROCESSED_DATA_DIR = os.path.join(SCRIPT_DIR, "data")
+PREPARED_DATA_DIR = os.path.join(DATA_DIR, "prepared")  # Data from Lab 3 pipeline
+PROCESSED_DATA_DIR = os.path.join(SCRIPT_DIR, "data")  # Train/test splits output
 
 # Output paths
 IMAGES_DIR = os.path.join(SCRIPT_DIR, "images")
@@ -27,21 +28,27 @@ os.makedirs(RESULTS_DIR, exist_ok=True)
 sys.path.insert(0, PROJECT_ROOT)
 
 # ============ DATASETS ============
+# This configuration trains models on BOTH:
+# 1. Raw data with basic preparation (from prepare_data.py)
+# 2. Fully prepared data from Lab 3 (6-stage pipeline)
+
 DATASETS = [
+    # === RAW DATA (Basic Preparation) ===
     {
-        "name": "Traffic Accidents",
-        "file_tag": "accidents",
+        "name": "Traffic Accidents (Raw)",
+        "file_tag": "accidents_raw",
         "raw_file": "traffic_accidents.csv",
         "target": "crash_type",
-        "sample_frac": 1.0,  # Use all data
-        "leakage_cols": [],  # No known leakage
+        "sample_frac": 1.0,
+        "leakage_cols": [],
+        "source": "raw",
     },
     {
-        "name": "Flights",
-        "file_tag": "flights",
+        "name": "Flights (Raw)",
+        "file_tag": "flights_raw",
         "raw_file": "Combined_Flights_2022.csv",
         "target": "Cancelled",
-        "sample_frac": 0.01,  # Sample 1% due to size
+        "sample_frac": 0.01,
         "leakage_cols": [
             "ArrTime",  # Only known after landing
             "ArrDelayMinutes",  # Contains the answer!
@@ -88,6 +95,24 @@ DATASETS = [
             "ArrDel15",  # Leakage
             "DivAirportLandings",  # Unbalanced AF, Leakage
         ],
+        "source": "raw",
+    },
+    # === LAB 3 PREPARED DATA (Full Pipeline) ===
+    {
+        "name": "Traffic Accidents (Lab3)",
+        "file_tag": "accidents_lab3",
+        "prepared_dir": "traffic_accidents",
+        "prepared_file": "6_selected.csv",
+        "target": "crash_type",
+        "source": "lab3",
+    },
+    {
+        "name": "Flights (Lab3)",
+        "file_tag": "flights_lab3",
+        "prepared_dir": "flights",
+        "prepared_file": "6_selected.csv",
+        "target": "Cancelled",
+        "source": "lab3",
     },
 ]
 

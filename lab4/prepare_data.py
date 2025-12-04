@@ -1,5 +1,8 @@
 """
-Data Preparation for Lab 4 - With Data Leakage Fix
+Data Preparation for Lab 4 - Dual Source Support
+Handles both:
+1. Raw data with basic preparation
+2. Lab 3 prepared data (just splitting)
 """
 
 import pandas as pd
@@ -14,9 +17,73 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import lab4_config as config
 
 
-def prepare_dataset(dataset_config):
+def prepare_lab3_dataset(dataset_config):
     """
-    Prepare a single dataset for modelling.
+    Load and split Lab 3 prepared data.
+    Data is already fully prepared, just needs train/test split.
+    """
+    name = dataset_config["name"]
+    file_tag = dataset_config["file_tag"]
+    prepared_dir = dataset_config["prepared_dir"]
+    prepared_file = dataset_config["prepared_file"]
+    target = dataset_config["target"]
+
+    print(f"\n{'='*60}")
+    print(f"📊 Preparing: {name}")
+    print(f"{'='*60}")
+
+    # Load prepared data from Lab 3
+    filepath = os.path.join(config.PREPARED_DATA_DIR, prepared_dir, prepared_file)
+    if not os.path.exists(filepath):
+        print(f"   ❌ File not found: {filepath}")
+        return None
+
+    print(f"   Loading {prepared_file} from Lab 3...")
+    df = pd.read_csv(filepath)
+    print(f"   Shape: {df.shape}")
+
+    if target not in df.columns:
+        print(f"   ❌ Target '{target}' not found")
+        return None
+
+    # Check for missing values
+    missing = df.isnull().sum().sum()
+    if missing > 0:
+        print(f"   ⚠️ {missing} missing values found, dropping...")
+        df = df.dropna()
+
+    # Display target distribution
+    print(f"   Target: {target}")
+    target_dist = df[target].value_counts()
+    for value, count in target_dist.items():
+        pct = count / len(df) * 100
+        print(f"      {value}: {count} ({pct:.1f}%)")
+
+    # Split into train/test
+    try:
+        train_df, test_df = train_test_split(
+            df, test_size=config.TEST_SIZE, random_state=config.RANDOM_STATE, stratify=df[target]
+        )
+    except ValueError:
+        train_df, test_df = train_test_split(
+            df, test_size=config.TEST_SIZE, random_state=config.RANDOM_STATE
+        )
+
+    print(f"   Train: {len(train_df)}, Test: {len(test_df)}")
+
+    # Save splits
+    train_path = os.path.join(config.PROCESSED_DATA_DIR, f"{file_tag}_train.csv")
+    test_path = os.path.join(config.PROCESSED_DATA_DIR, f"{file_tag}_test.csv")
+    train_df.to_csv(train_path, index=False)
+    test_df.to_csv(test_path, index=False)
+
+    print(f"   ✅ Saved: {file_tag}_train.csv, {file_tag}_test.csv")
+    return {"train": train_df, "test": test_df, "target": target}
+
+
+def prepare_raw_dataset(dataset_config):
+    """
+    Prepare raw dataset with basic preprocessing.
     - Removes data leakage columns
     - Handles missing values
     - Encodes categorical variables
@@ -149,6 +216,8 @@ def prepare_dataset(dataset_config):
     train_df.to_csv(train_unscaled_path, index=False)
     test_df.to_csv(test_unscaled_path, index=False)
 
+    print(f"   ✅ Saved: {file_tag}_train.csv, {file_tag}_test.csv")
+    
     return {
         "train": train_scaled,
         "test": test_scaled,
@@ -160,16 +229,37 @@ def prepare_dataset(dataset_config):
 
 
 def prepare_all():
-    """Prepare all datasets."""
+    """Prepare all datasets - both raw and Lab 3 prepared."""
     print("\n" + "=" * 60)
-    print("🚀 LAB 4 - DATA PREPARATION (With Leakage Fix)")
+    print("🚀 LAB 4 - DATA PREPARATION (Dual Source)")
+    print("=" * 60)
+    print("Processing BOTH:")
+    print("  1. Raw data with basic preparation")
+    print("  2. Lab 3 fully prepared data")
     print("=" * 60)
 
-    for dataset in config.DATASETS:
-        prepare_dataset(dataset)
+    raw_count = 0
+    lab3_count = 0
 
-    print("\nAll datasets prepared!")
-    print(f"   Data saved to: {config.PROCESSED_DATA_DIR}")
+    for dataset in config.DATASETS:
+        source = dataset.get("source", "raw")
+        
+        if source == "lab3":
+            result = prepare_lab3_dataset(dataset)
+            if result:
+                lab3_count += 1
+        # else:  # raw
+        #     result = prepare_raw_dataset(dataset)
+        #     if result:
+        #         raw_count += 1
+
+    print("\n" + "=" * 60)
+    print("✅ All datasets prepared!")
+    print(f"   Raw datasets: {raw_count}")
+    print(f"   Lab3 datasets: {lab3_count}")
+    print(f"   Total: {raw_count + lab3_count}")
+    print(f"   Output: {config.PROCESSED_DATA_DIR}")
+    print("=" * 60)
 
 
 if __name__ == "__main__":

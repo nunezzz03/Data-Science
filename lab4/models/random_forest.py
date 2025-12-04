@@ -30,17 +30,18 @@ def random_forests_study(
     trnY: array,
     tstX: ndarray,
     tstY: array,
-    nr_max_trees: int = 2500,
-    lag: int = 500,
+    nr_max_trees: int = 500,
+    lag: int = 100,
     metric: str = "accuracy",
 ) -> tuple[RandomForestClassifier | None, dict]:
     """
     Study Random Forest with different hyperparameters.
     Returns the best model and its parameters.
+    Optimized for faster execution: max 500 trees, 3 max_features, 3 depths = ~45 models
     """
-    n_estimators: list[int] = [100] + [i for i in range(500, nr_max_trees + 1, lag)]
+    n_estimators: list[int] = [50, 100] + [i for i in range(200, nr_max_trees + 1, lag)]
     max_depths: list[int] = [2, 5, 7]
-    max_features: list[float] = [0.1, 0.3, 0.5, 0.7, 0.9]
+    max_features: list[float] = [0.3, 0.5, 0.7]  # Reduced from 5 to 3 values
 
     best_model: RandomForestClassifier | None = None
     best_params: dict = {"name": "RF", "metric": metric, "params": ()}
@@ -123,7 +124,7 @@ def rf_overfitting_study(trnX, trnY, tstX, tstY, params, file_tag, metric):
     """Study overfitting for Random Forest."""
     d_max: int = params["params"][0]
     feat: float = params["params"][1]
-    nr_estimators: list[int] = [i for i in range(2, 2501, 500)]
+    nr_estimators: list[int] = [50, 100] + [i for i in range(200, 601, 100)]  # Up to 600 trees
 
     y_tst_values: list[float] = []
     y_trn_values: list[float] = []
