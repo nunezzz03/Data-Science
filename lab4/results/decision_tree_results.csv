@@ -1,0 +1,3 @@
+model,params,accuracy,precision,recall,f1,dataset
+DecisionTree,"max_depth=8, criterion=entropy",0.842002165881004,0.8066440349175558,0.9447079203703178,0.8702339999738401,Traffic Accidents
+DecisionTree,"max_depth=2, criterion=entropy",0.9701675521046179,0.0,0.0,0.0,Flights
