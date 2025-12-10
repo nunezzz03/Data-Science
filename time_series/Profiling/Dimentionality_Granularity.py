@@ -70,14 +70,17 @@ def plot_ts_multivariate_chart(df: DataFrame, title: str, save_path: Path) -> No
 # -----------------------------
 # ===== Script Folder Setup ===
 # -----------------------------
-SCRIPT_DIR = Path(__file__).parent  # ensures CSVs are found in the same folder as script
+SCRIPT_DIR = Path(__file__).parent  # .../time_series/Profiling
+PROJECT_ROOT = SCRIPT_DIR.parent.parent # .../Data-Science/
+DATA_DIR = PROJECT_ROOT / "data" / "raw" # Caminho para os teus ficheiros de dados
+
 OUTPUT_ROOT = SCRIPT_DIR / "outputs"
 OUTPUT_ROOT.mkdir(exist_ok=True)
 
 # -----------------------------
 # ======== TRAFFIC DATA =======
 # -----------------------------
-traffic_file = SCRIPT_DIR / "TrafficTwoMonth.csv"
+traffic_file = DATA_DIR / "TrafficTwoMonth.csv"
 traffic_target = "Total"
 traffic_df = pd.read_csv(traffic_file)
 
@@ -99,24 +102,48 @@ traffic_df = traffic_df.drop(columns=cat_cols)
 # Synthetic timeline as index
 traffic_df = traffic_df.reset_index(drop=True)
 
-# Output folder for traffic figures
+# Criar um timestamp adequado para o traffic
+traffic_df['Timestamp'] = pd.date_range(
+    start='2022-01-10', 
+    periods=len(traffic_df), 
+    freq='15min'  # Assumindo dados a cada 15 minutos
+)
+traffic_df = traffic_df.set_index('Timestamp')
+
+# ✅ CRIAR A PASTA DE OUTPUT PRIMEIRO
 traffic_out = OUTPUT_ROOT / "TrafficTwoMonth"
 traffic_out.mkdir(exist_ok=True)
 
-# Traffic granularities
+# Guardar o DataFrame processado
+processed_traffic_path = SCRIPT_DIR / "TrafficTwoMonth_processed.csv"
+traffic_df.to_csv(processed_traffic_path)
+print(f"✅ Traffic processado guardado em: {processed_traffic_path}")
+
+# Train/Test Split (70/30 chronological)
+split_idx = int(len(traffic_df) * 0.7)
+traffic_train = traffic_df.iloc[:split_idx]
+traffic_test = traffic_df.iloc[split_idx:]
+
+# Guardar splits
+traffic_train.to_csv(traffic_out / "traffic_train.csv")
+traffic_test.to_csv(traffic_out / "traffic_test.csv")
+print(f"✅ Train/Test splits guardados em: {traffic_out}")
+
+# Traffic granularities - usar frequências pandas diretamente
 traffic_grans = {
-    "hourly": 1,
-    "daily": 24,
-    "weekly": 24*7
+    "hourly": "1H",    # 1 hora
+    "daily": "1D",     # 1 dia
+    "weekly": "1W"     # 1 semana
 }
 
-for name, window in traffic_grans.items():
-    agg = ts_aggregation_by(traffic_df, group_size=window, agg_func="mean")
+for name, freq in traffic_grans.items():
+    # Usar resample diretamente (funciona com DatetimeIndex)
+    agg = traffic_df.resample(freq).mean()
 
     # Univariate plot
     fig_path_uni = traffic_out / f"traffic_{name}.png"
     plot_line_and_save(list(agg.index), agg[traffic_target].to_list(),
-                       xlabel="Synthetic timeline", ylabel=traffic_target,
+                       xlabel="Timestamp", ylabel=traffic_target,
                        title=f"Traffic {name} aggregation ({traffic_target})",
                        save_path=fig_path_uni)
 
@@ -124,15 +151,10 @@ for name, window in traffic_grans.items():
     fig_path_multi = traffic_out / f"traffic_{name}_multivariate.png"
     plot_ts_multivariate_chart(agg, title=f"Traffic {name} multivariate", save_path=fig_path_multi)
 
-# Train/Test Split (70/30 chronological)
-split_idx = int(len(traffic_df) * 0.7)
-traffic_train = traffic_df.iloc[:split_idx]
-traffic_test = traffic_df.iloc[split_idx:]
-
 # -----------------------------
 # ======= ECONOMIC DATA =======
 # -----------------------------
-econ_file = SCRIPT_DIR / "economic_indicators_dataset_2010_2023.csv"
+econ_file = DATA_DIR / "economic_indicators_dataset_2010_2023.csv"
 econ_target = "Inflation Rate (%)"
 econ_df = pd.read_csv(econ_file, parse_dates=["Date"], infer_datetime_format=True)
 econ_df = econ_df.set_index("Date")
@@ -180,3 +202,13 @@ for name, freq in econ_grans.items():
 split_idx = int(len(econ_df) * 0.7)
 econ_train = econ_df.iloc[:split_idx]
 econ_test = econ_df.iloc[split_idx:]
+
+econ_df_processed = econ_df.copy()
+processed_econ_path = SCRIPT_DIR / "EconomicUSA_processed.csv"
+econ_df_processed.to_csv(processed_econ_path)
+print(f"✅ Economic processado guardado em: {processed_econ_path}")
+
+# Guardar Train/Test splits
+econ_train.to_csv(econ_out / "economic_train.csv")
+econ_test.to_csv(econ_out / "economic_test.csv")
+print(f"✅ Train/Test splits guardados em: {econ_out}")

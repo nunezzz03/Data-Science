@@ -1,3 +1,3 @@
 model,params,accuracy,precision,recall,f1,dataset
 NaiveBayes (GaussianNB),GaussianNB,0.8212670403873105,0.7586467138174918,0.9991480419163378,0.862444692299207,Traffic Accidents
-NaiveBayes (BernoulliNB),BernoulliNB,0.9701675521046179,0.0,0.0,0.0,Flights
+NaiveBayes (GaussianNB),GaussianNB,0.9701675521046179,0.0,0.0,0.0,Flights
