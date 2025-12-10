@@ -73,42 +73,58 @@ def get_lagged_series(series: Series, max_lag: int, delta: int = 1):
 # 2. ANALYSIS FUNCTIONS 
 # =============================================================================
 
-def analyze_distribution(series: Series, target: str, file_tag: str, output_dir: Path):
+def analyze_distribution(series: Series, target: str, file_tag: str, output_dir: Path, granularities: dict):
     print(f"--- Processing Distribution for {file_tag} ---")
     
-    # 2.1 Aggregations for Distribution
-    ss_days = ts_aggregation_by(series, gran_level="D", agg_func="sum")
-    ss_weeks = ts_aggregation_by(series, gran_level="W", agg_func="sum")
-    ss_months = ts_aggregation_by(series, gran_level="ME", agg_func="sum")
-
-    grans = [series, ss_days, ss_weeks, ss_months]
-    gran_names = ["Hourly", "Daily", "Weekly", "Monthly"]
+    # 2.1 Aggregations for Distribution baseadas nas granularidades específicas
+    grans = []
+    gran_names = []
+    
+    # Adicionar série original
+    grans.append(series)
+    gran_names.append("Original")
+    
+    # Adicionar agregações específicas do dataset
+    for gran_name, gran_level in granularities.items():
+        aggregated = ts_aggregation_by(series, gran_level=gran_level, agg_func="sum")
+        grans.append(aggregated)
+        gran_names.append(gran_name)
 
     # 2.2 Histograms Matrix
     fig, axs = subplots(1, len(grans), figsize=(len(grans) * HEIGHT, HEIGHT))
     fig.suptitle(f"{file_tag} {target} Distribution")
+    
+    if len(grans) == 1:
+        axs = [axs]  # Para caso só haja 1 gráfico
+    
     for i in range(len(grans)):
         set_chart_labels(axs[i], title=f"{gran_names[i]}", xlabel=target, ylabel="Nr records")
         axs[i].hist(grans[i].dropna().values)
     savefig(output_dir / f"{file_tag}_distribution_histograms.png")
-    plt.close()  # ✅ ADICIONAR: Fecha a figura em vez de mostrar
+    plt.close()
     print(f"   📊 Saved: {output_dir / f'{file_tag}_distribution_histograms.png'}")
 
-    # 2.3 Boxplots Comparison
+    # 2.3 Boxplots Comparison (usar as 2 primeiras granularidades)
     fig, axs = subplots(2, 2, figsize=(2 * HEIGHT, HEIGHT))
-    set_chart_labels(axs[0, 0], title="HOURLY")
-    axs[0, 0].boxplot(series.dropna())
     
-    set_chart_labels(axs[0, 1], title="WEEKLY")
-    axs[0, 1].boxplot(ss_weeks.dropna())
+    set_chart_labels(axs[0, 0], title=gran_names[0].upper())
+    axs[0, 0].boxplot(grans[0].dropna())
+    
+    if len(grans) > 1:
+        set_chart_labels(axs[0, 1], title=gran_names[1].upper())
+        axs[0, 1].boxplot(grans[1].dropna())
+    else:
+        axs[0, 1].set_axis_off()
     
     axs[1, 0].grid(False); axs[1, 0].set_axis_off()
-    axs[1, 0].text(0.2, 0, str(series.describe()), fontsize="small")
+    axs[1, 0].text(0.2, 0, str(grans[0].describe()), fontsize="small")
     
     axs[1, 1].grid(False); axs[1, 1].set_axis_off()
-    axs[1, 1].text(0.2, 0, str(ss_weeks.describe()), fontsize="small")
+    if len(grans) > 1:
+        axs[1, 1].text(0.2, 0, str(grans[1].describe()), fontsize="small")
+    
     savefig(output_dir / f"{file_tag}_distribution_boxplots.png")
-    plt.close()  # ✅ ADICIONAR
+    plt.close()
     print(f"   📊 Saved: {output_dir / f'{file_tag}_distribution_boxplots.png'}")
     
     # 2.4 Lag Plot
@@ -116,7 +132,7 @@ def analyze_distribution(series: Series, target: str, file_tag: str, output_dir:
     lags = get_lagged_series(series, 20, 10)
     plot_multiline_chart(series.index.to_list(), lags, xlabel="Timestamp", ylabel=target)
     savefig(output_dir / f"{file_tag}_lag_plot.png")
-    plt.close()  # ✅ ADICIONAR
+    plt.close()
     print(f"   📊 Saved: {output_dir / f'{file_tag}_lag_plot.png'}")
     
     # 2.5 Autocorrelation
@@ -240,19 +256,28 @@ def analyze_seasonality(series: Series, target: str, file_tag: str, output_dir: 
 
 if __name__ == "__main__":
     
-    # Configuração dos datasets
+    # Configuração dos datasets com granularidades específicas
     datasets = [
         {
             "filename": SCRIPT_DIR / "TrafficTwoMonth_processed.csv",
             "file_tag": "Traffic",
             "target_col": "Total",
-            "output_dir": SCRIPT_DIR / "outputs" / "TrafficTwoMonth"
+            "output_dir": SCRIPT_DIR / "outputs" / "TrafficTwoMonth",
+            "index_col": "Timestamp",
+            "granularities": {
+                "Hourly": "1H",   # Agregação por hora
+                "Daily": "1D",    # Agregação por dia
+            }
         },
         {
             "filename": SCRIPT_DIR / "EconomicUSA_processed.csv",
             "file_tag": "Economic",
             "target_col": "Inflation Rate (%)",
-            "output_dir": SCRIPT_DIR / "outputs" / "EconomicUSA"
+            "output_dir": SCRIPT_DIR / "outputs" / "EconomicUSA",
+            "index_col": "Date",
+            "granularities": {
+                "Yearly": "1Y"    # Agregação por ano (Year End)
+            }
         }
     ]
     
@@ -269,6 +294,8 @@ if __name__ == "__main__":
         FILENAME = ds_config['filename']
         FILE_TAG = ds_config['file_tag']
         TARGET_COL = ds_config['target_col']
+        INDEX_COL = ds_config['index_col']
+        GRANULARITIES = ds_config['granularities']
         
         # Carregar Dados
         if FILENAME.exists():
@@ -278,7 +305,7 @@ if __name__ == "__main__":
                 # Carregar com parse_dates no índice
                 data = read_csv(
                     FILENAME,
-                    index_col='Timestamp' if FILE_TAG == "Traffic" else 'Date',  # Economic usa 'Date'
+                    index_col=INDEX_COL,
                     parse_dates=True
                 )
                 
@@ -293,6 +320,7 @@ if __name__ == "__main__":
                 print(f"✅ Dados carregados! Registos: {len(data)}")
                 print(f"📊 Colunas: {data.columns.tolist()}")
                 print(f"📅 Período: {data.index.min()} até {data.index.max()}")
+                print(f"🔍 Granularidades de análise: {list(GRANULARITIES.keys())}")
                 print(f"\n🔍 Primeiras linhas:")
                 print(data.head())
                 
@@ -302,7 +330,7 @@ if __name__ == "__main__":
                 # Executar Análises
                 print(f"\n📁 Imagens serão guardadas em: {OUTPUT_DIR}\n")
                 
-                analyze_distribution(series, TARGET_COL, FILE_TAG, OUTPUT_DIR)
+                analyze_distribution(series, TARGET_COL, FILE_TAG, OUTPUT_DIR, GRANULARITIES)
                 analyze_stationarity(series, TARGET_COL, FILE_TAG, OUTPUT_DIR)
                 analyze_seasonality(series, TARGET_COL, FILE_TAG, OUTPUT_DIR)
                 
