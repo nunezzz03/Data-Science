@@ -22,7 +22,7 @@ from matplotlib.dates import AutoDateLocator, AutoDateFormatter
 from pandas import DataFrame, Series, Index, Period
 from pandas import read_csv, concat, to_numeric, to_datetime
 from pandas.api.types import is_integer_dtype, is_any_real_numeric_dtype
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.impute import SimpleImputer, KNNImputer
 from sklearn.metrics import accuracy_score, recall_score, precision_score
 from sklearn.metrics import f1_score
@@ -888,6 +888,14 @@ def plot_components(
         axs[i].plot(components[key])
         i += 1
     return axs
+
+
+def scale_all_dataframe(data: DataFrame) -> DataFrame:
+    vars: list[str] = data.columns.to_list()
+    transf: StandardScaler = StandardScaler().fit(data)
+    df = DataFrame(transf.transform(data), index=data.index)
+    df.columns = vars
+    return df
 
 
 # ---------------------------------------
