@@ -288,6 +288,19 @@ def main():
     best_idx = persistence_results["RMSE_test"].idxmin()
     best_scaling = results_df.loc[best_idx, "Scaling"]
 
+    # Save the best scaled data for the next pipeline step
+    # Map display name back to scaler type
+    name_to_type = {v: k for k, v in scaling_approaches.items()}
+    best_scaler_type = name_to_type.get(best_scaling, "none")
+
+    # Re-apply best scaling and save
+    data_best, _ = apply_scaling(data, best_scaler_type)
+    output_dir = os.path.join(SCRIPT_DIR, "processed_data", "scaling")
+    os.makedirs(output_dir, exist_ok=True)
+    output_file = os.path.join(output_dir, f"{DATASET_TAG}_scaled.csv")
+    data_best.to_csv(output_file)
+    print(f"\nBest scaled data saved to: {output_file}")
+
     print(f"\n{'=' * 60}")
     print("INSIGHTS:")
     print("-" * 60)

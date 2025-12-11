@@ -1,7 +1,7 @@
 """
 Lab 5 - Time Series Data Preparation: Smoothing
-Dataset: economic_indicators_dataset_2010_2023.csv
-Target: Inflation Rate (%) - USA only
+Dataset: TrafficTwoMonth.csv
+Target: Total (total vehicle count per 15-min interval)
 
 This script compares different smoothing techniques:
 - SMA (Simple Moving Average): rolling mean with equal weights
@@ -41,40 +41,35 @@ from utils.dslabs_functions import (
 plt.style.use(f"{DATA_SCIENCE_ROOT}/utils/dslabs.mplstyle")
 
 # Configuration
-DATASET_FILE = f"{DATA_SCIENCE_ROOT}/data/raw/economic_indicators_dataset_2010_2023.csv"
-DATASET_TAG = "economic_usa"
-TARGET = "Inflation Rate (%)"
-COUNTRY = "USA"
+DATASET_TAG = "traffic"
+TARGET = "Total"
 TRAIN_PCT = 0.90
 
-# Window/span sizes for smoothing (monthly data)
-# 3 = quarter, 6 = half year, 12 = full year
-SMA_WIN_SIZES: list[int] = [3, 6]  # SMA windows
-EWMA_SPANS: list[int] = [3, 6]  # EWMA spans
+# Input file from previous pipeline step (differentiation)
+INPUT_FILE = os.path.join(
+    SCRIPT_DIR, "processed_data", "differentiation", f"{DATASET_TAG}_differenced.csv"
+)
+
+# Output directory
+OUTPUT_DIR = os.path.join(SCRIPT_DIR, "processed_data", "smoothing")
+IMAGES_DIR = os.path.join(SCRIPT_DIR, "images", "smoothing")
+
+# Window/span sizes for smoothing
+# For daily aggregated data: smaller windows like 3, 7
+SMA_WIN_SIZES: list[int] = [3, 7, 14]  # SMA windows
+EWMA_SPANS: list[int] = [3, 7, 14]  # EWMA spans
 
 
 def load_and_prepare_data() -> DataFrame:
-    """Load economic data for USA and create proper datetime index."""
-    data = read_csv(DATASET_FILE, sep=",", decimal=".")
+    """Load data from previous pipeline step (differentiation)."""
+    if not os.path.exists(INPUT_FILE):
+        raise FileNotFoundError(
+            f"Input file not found: {INPUT_FILE}\n"
+            "Please run the previous pipeline steps first (01_scaling, 02_aggregation, 03_differentiation)."
+        )
 
-    # Filter for USA only
-    data = data[data["Country"] == COUNTRY].copy()
-
-    # Parse date and set as index
-    data["Date"] = pd.to_datetime(data["Date"])
-    data = data.sort_values("Date")
-    data = data.set_index("Date")
-
-    # Keep only numeric columns for time series analysis
-    numeric_cols = [
-        "Inflation Rate (%)",
-        "GDP Growth Rate (%)",
-        "Unemployment Rate (%)",
-        "Interest Rate (%)",
-        "Stock Index Value",
-    ]
-    data = data[numeric_cols]
-
+    print(f"Loading differenced data from: {INPUT_FILE}")
+    data = read_csv(INPUT_FILE, index_col=0, parse_dates=True)
     return data
 
 
@@ -113,7 +108,7 @@ def linear_regression_model(train: Series, test: Series) -> tuple[Series, Series
     return prd_train, prd_test
 
 
-def safe_mape(actual: Series, predicted: Series, epsilon: float = 0.1) -> float:
+def safe_mape(actual: Series, predicted: Series, epsilon: float = 1.0) -> float:
     """Calculate MAPE safely, avoiding division by zero."""
     mask = abs(actual) > epsilon
     if mask.sum() == 0:
@@ -141,13 +136,13 @@ def evaluate_model(
 
 
 def main():
-    print("Lab 5 - Smoothing Analysis for Economic Time Series (USA)")
+    print("Lab 5 - Smoothing Analysis for Traffic Time Series")
     print("=" * 60)
 
     # Load data
     data = load_and_prepare_data()
     series: Series = data[TARGET]
-    print(f"\nDataset loaded: {len(series)} records (USA only)")
+    print(f"\nDataset loaded: {len(series)} records")
     print(f"Target: {TARGET}")
     print(f"Date range: {series.index.min()} to {series.index.max()}")
 
@@ -158,6 +153,7 @@ def main():
     # -------------------------------------------------------------------------
     # Plot 1: Smoothing comparison (SMA vs EWMA)
     # -------------------------------------------------------------------------
+    all_windows = SMA_WIN_SIZES + EWMA_SPANS
     n_plots = len(SMA_WIN_SIZES) + len(EWMA_SPANS)
     fig, axs = plt.subplots(n_plots, 1, figsize=(3 * HEIGHT, HEIGHT * n_plots))
     fig.suptitle(f"{DATASET_TAG} - Smoothing Effect on {TARGET}")
@@ -169,7 +165,7 @@ def main():
         ax = axs[plot_idx] if n_plots > 1 else axs
         ax.plot(series.index, series.values, label="Original", alpha=0.5)
         ax.plot(smoothed.index, smoothed.values, label=f"SMA (w={win})", color="red")
-        ax.set_title(f"SMA - Window Size = {win} months")
+        ax.set_title(f"SMA - Window Size = {win} ({win * 15} min)")
         ax.set_xlabel("Time")
         ax.set_ylabel(TARGET)
         ax.legend()
@@ -183,7 +179,7 @@ def main():
         ax.plot(
             smoothed.index, smoothed.values, label=f"EWMA (span={span})", color="green"
         )
-        ax.set_title(f"EWMA - Span = {span} months")
+        ax.set_title(f"EWMA - Span = {span}")
         ax.set_xlabel("Time")
         ax.set_ylabel(TARGET)
         ax.legend()
@@ -198,6 +194,7 @@ def main():
     # Evaluate each smoothing approach with Persistence & Linear Regression
     # -------------------------------------------------------------------------
     all_results = []
+    all_smoothed = {}  # Store smoothed train data for each configuration
 
     # Smoothing configurations: baseline + SMA + EWMA
     smoothing_configs = (
@@ -206,8 +203,6 @@ def main():
         + [("ewma", s) for s in EWMA_SPANS]
     )
 
-    # IMPORTANT: Split FIRST, then smooth only training data (professor's requirement)
-    # This avoids data leakage from test into training
     df_original = DataFrame({TARGET: series})
     train_df_orig, test_df_orig = dataframe_temporal_train_test_split(
         df_original, TRAIN_PCT
@@ -232,6 +227,9 @@ def main():
 
         # Test data remains unsmoothed (original values)
         test = test_orig.copy()
+
+        # Store smoothed training data
+        all_smoothed[name] = train.copy()
 
         print(f"\n{'=' * 60}")
         print(f"Smoothing: {name}")
@@ -346,6 +344,19 @@ def main():
     )
     print(f"Best Linear Reg:  {best_lr['Smoothing']} (RMSE={best_lr['RMSE_test']:.4f})")
     print("=" * 60)
+
+    # Save best smoothed data for next step (final output)
+    best_smoothing_name = best_pers["Smoothing"]
+    if best_smoothing_name in all_smoothed:
+        best_smoothed_train = all_smoothed[best_smoothing_name]
+        # Combine with original test data (not smoothed)
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        output_file = os.path.join(OUTPUT_DIR, f"{DATASET_TAG}_smoothed.csv")
+
+        # For full data: use smoothed train + original test
+        full_smoothed = pd.concat([best_smoothed_train, test_orig])
+        full_smoothed.to_frame(name=TARGET).to_csv(output_file)
+        print(f"\nBest smoothed data saved to: {output_file}")
 
     # Comparison bar chart
     fig, axes = plt.subplots(2, 2, figsize=(3 * HEIGHT, 2 * HEIGHT))

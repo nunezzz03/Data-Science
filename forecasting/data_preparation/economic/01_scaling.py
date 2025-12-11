@@ -300,6 +300,21 @@ def main():
     print(f"Best Linear Reg:  {best_lr['Scaling']} (RMSE={best_lr['RMSE_test']:.4f})")
     print("=" * 60)
 
+    # Save the best scaled data for the next pipeline step
+    # Use best persistence scaling (most common baseline)
+    best_scaling_name = best_pers["Scaling"]
+    # Map display name back to scaler type (scaling_approaches is list of tuples)
+    name_to_type = {name: scaler_type for scaler_type, name in scaling_approaches}
+    best_scaler_type = name_to_type.get(best_scaling_name, "none")
+
+    # Re-apply best scaling and save
+    data_best, _ = apply_scaling(data, best_scaler_type)
+    output_dir = os.path.join(SCRIPT_DIR, "processed_data", "scaling")
+    os.makedirs(output_dir, exist_ok=True)
+    output_file = os.path.join(output_dir, f"{DATASET_TAG}_scaled.csv")
+    data_best.to_csv(output_file)
+    print(f"\nBest scaled data saved to: {output_file}")
+
     # Comparison bar chart
     fig, axes = plt.subplots(2, 2, figsize=(3 * HEIGHT, 2 * HEIGHT))
     fig.suptitle(f"{DATASET_TAG} - Scaling Results Comparison")
