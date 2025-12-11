@@ -173,29 +173,30 @@ def main():
     # First: No smoothing (baseline)
     smoothing_configs = [("none", 0)] + [("rolling", w) for w in WIN_SIZES]
 
+    df_original = DataFrame({TARGET: series})
+    train_df_orig, test_df_orig = dataframe_temporal_train_test_split(df_original, TRAIN_PCT)
+    train_orig = train_df_orig[TARGET]
+    test_orig = test_df_orig[TARGET]
+
     for method, win in smoothing_configs:
         if method == "none":
             name = "No Smoothing"
-            series_smooth = series.copy()
+            train = train_orig.copy()
         else:
             name = f"Rolling (w={win})"
-            series_smooth = series.rolling(window=win).mean()
-            series_smooth = series_smooth.fillna(series)  # Fill NaN at start
+            # Smooth ONLY training data
+            train_smoothed = train_orig.rolling(window=win).mean()
+            train = train_smoothed.fillna(train_orig)  # Fill NaN at start
+
+        # Test data remains unsmoothed (original values)
+        test = test_orig.copy()
 
         print(f"\n{'=' * 60}")
         print(f"Smoothing: {name}")
         print("=" * 60)
 
-        # Create dataframe for train/test split
-        df_smooth = DataFrame({TARGET: series_smooth})
-
-        # Train/test split
-        train_df, test_df = dataframe_temporal_train_test_split(df_smooth, TRAIN_PCT)
-        train = train_df[TARGET]
-        test = test_df[TARGET]
-
-        print(f"Train size: {len(train)} ({TRAIN_PCT * 100:.0f}%)")
-        print(f"Test size: {len(test)} ({(1 - TRAIN_PCT) * 100:.0f}%)")
+        print(f"Train size: {len(train)} ({TRAIN_PCT * 100:.0f}%) - {'smoothed' if method != 'none' else 'original'}")
+        print(f"Test size: {len(test)} ({(1 - TRAIN_PCT) * 100:.0f}%) - original (unsmoothed)")
 
         # --- Persistence Model ---
         print("\n--- Persistence Model ---")
