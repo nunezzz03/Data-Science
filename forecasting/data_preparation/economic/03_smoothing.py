@@ -1,7 +1,7 @@
 """
 Lab 5 - Time Series Data Preparation: Smoothing
-Dataset: TrafficTwoMonth.csv
-Target: Total (total vehicle count per 15-min interval)
+Dataset: economic_indicators_dataset_2010_2023.csv
+Target: Inflation Rate (%) - USA only
 
 This script compares different smoothing techniques:
 - SMA (Simple Moving Average): rolling mean with equal weights
@@ -41,28 +41,38 @@ from utils.dslabs_functions import (
 plt.style.use(f"{DATA_SCIENCE_ROOT}/utils/dslabs.mplstyle")
 
 # Configuration
-DATASET_FILE = f"{DATA_SCIENCE_ROOT}/data/raw/TrafficTwoMonth.csv"
-DATASET_TAG = "traffic"
-TARGET = "Total"
+DATASET_FILE = f"{DATA_SCIENCE_ROOT}/data/raw/economic_indicators_dataset_2010_2023.csv"
+DATASET_TAG = "economic_usa"
+TARGET = "Inflation Rate (%)"
+COUNTRY = "USA"
 TRAIN_PCT = 0.90
 
-# Window/span sizes for smoothing
-# For 15-min intervals: 4=1h, 24=6h, 96=1day
-SMA_WIN_SIZES: list[int] = [24, 96]  # SMA windows
-EWMA_SPANS: list[int] = [24, 96]  # EWMA spans
+# Window/span sizes for smoothing (monthly data)
+# 3 = quarter, 6 = half year, 12 = full year
+SMA_WIN_SIZES: list[int] = [3, 6]  # SMA windows
+EWMA_SPANS: list[int] = [3, 6]  # EWMA spans
 
 
 def load_and_prepare_data() -> DataFrame:
-    """Load traffic data and create proper datetime index."""
+    """Load economic data for USA and create proper datetime index."""
     data = read_csv(DATASET_FILE, sep=",", decimal=".")
 
-    # Create synthetic datetime index (15-min intervals)
-    start_date = pd.Timestamp("2024-10-10 00:00:00")
-    data["datetime"] = pd.date_range(start=start_date, periods=len(data), freq="15min")
-    data = data.set_index("datetime")
+    # Filter for USA only
+    data = data[data["Country"] == COUNTRY].copy()
+
+    # Parse date and set as index
+    data["Date"] = pd.to_datetime(data["Date"])
+    data = data.sort_values("Date")
+    data = data.set_index("Date")
 
     # Keep only numeric columns for time series analysis
-    numeric_cols = ["CarCount", "BikeCount", "BusCount", "TruckCount", "Total"]
+    numeric_cols = [
+        "Inflation Rate (%)",
+        "GDP Growth Rate (%)",
+        "Unemployment Rate (%)",
+        "Interest Rate (%)",
+        "Stock Index Value",
+    ]
     data = data[numeric_cols]
 
     return data
@@ -103,7 +113,7 @@ def linear_regression_model(train: Series, test: Series) -> tuple[Series, Series
     return prd_train, prd_test
 
 
-def safe_mape(actual: Series, predicted: Series, epsilon: float = 1.0) -> float:
+def safe_mape(actual: Series, predicted: Series, epsilon: float = 0.1) -> float:
     """Calculate MAPE safely, avoiding division by zero."""
     mask = abs(actual) > epsilon
     if mask.sum() == 0:
@@ -131,13 +141,13 @@ def evaluate_model(
 
 
 def main():
-    print("Lab 5 - Smoothing Analysis for Traffic Time Series")
+    print("Lab 5 - Smoothing Analysis for Economic Time Series (USA)")
     print("=" * 60)
 
     # Load data
     data = load_and_prepare_data()
     series: Series = data[TARGET]
-    print(f"\nDataset loaded: {len(series)} records")
+    print(f"\nDataset loaded: {len(series)} records (USA only)")
     print(f"Target: {TARGET}")
     print(f"Date range: {series.index.min()} to {series.index.max()}")
 
@@ -148,7 +158,6 @@ def main():
     # -------------------------------------------------------------------------
     # Plot 1: Smoothing comparison (SMA vs EWMA)
     # -------------------------------------------------------------------------
-    all_windows = SMA_WIN_SIZES + EWMA_SPANS
     n_plots = len(SMA_WIN_SIZES) + len(EWMA_SPANS)
     fig, axs = plt.subplots(n_plots, 1, figsize=(3 * HEIGHT, HEIGHT * n_plots))
     fig.suptitle(f"{DATASET_TAG} - Smoothing Effect on {TARGET}")
@@ -160,7 +169,7 @@ def main():
         ax = axs[plot_idx] if n_plots > 1 else axs
         ax.plot(series.index, series.values, label="Original", alpha=0.5)
         ax.plot(smoothed.index, smoothed.values, label=f"SMA (w={win})", color="red")
-        ax.set_title(f"SMA - Window Size = {win} ({win * 15} min)")
+        ax.set_title(f"SMA - Window Size = {win} months")
         ax.set_xlabel("Time")
         ax.set_ylabel(TARGET)
         ax.legend()
@@ -174,7 +183,7 @@ def main():
         ax.plot(
             smoothed.index, smoothed.values, label=f"EWMA (span={span})", color="green"
         )
-        ax.set_title(f"EWMA - Span = {span}")
+        ax.set_title(f"EWMA - Span = {span} months")
         ax.set_xlabel("Time")
         ax.set_ylabel(TARGET)
         ax.legend()
@@ -197,6 +206,8 @@ def main():
         + [("ewma", s) for s in EWMA_SPANS]
     )
 
+    # IMPORTANT: Split FIRST, then smooth only training data (professor's requirement)
+    # This avoids data leakage from test into training
     df_original = DataFrame({TARGET: series})
     train_df_orig, test_df_orig = dataframe_temporal_train_test_split(
         df_original, TRAIN_PCT
