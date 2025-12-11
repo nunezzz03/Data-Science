@@ -3,12 +3,11 @@ import os
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'utils'))
-from dslabs_functions import series_train_test_split, plot_forecasting_series, plot_forecasting_eval, FORECAST_MEASURES
-from config import PAST_COLOR, FUTURE_COLOR, PRED_FUTURE_COLOR, PRED_PAST_COLOR
+from dslabs_functions import plot_forecasting_series, plot_forecasting_eval, FORECAST_MEASURES
+from lab5_config import TRAIN_TEST_SPLIT, LAG, DIFFERENTIATION_CONFIGS, MIN_RECORDS_AFTER_DIFF
 
 IMAGES_DIR = os.path.join(os.path.dirname(__file__), 'images', 'differentiation')
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), 'results', 'differentiation')
@@ -85,7 +84,6 @@ def evaluate_models(train_series, test_series, config_name, lag=1):
     y_pred_persistence_train = persistence.predict(train_series)
     y_pred_persistence_test = persistence.predict(test_series)
     
-    # Calculate metrics using professor's FORECAST_MEASURES
     mse_pers = FORECAST_MEASURES['MSE'](test_series.values, y_pred_persistence_test)
     mae_pers = FORECAST_MEASURES['MAE'](test_series.values, y_pred_persistence_test)
     r2_pers = FORECAST_MEASURES['R2'](test_series.values, y_pred_persistence_test)
@@ -105,7 +103,6 @@ def evaluate_models(train_series, test_series, config_name, lag=1):
     y_pred_lr_train = lr_model.predict(X_train)
     y_pred_lr_test = lr_model.predict(X_test)
     
-    # Calculate metrics using professor's FORECAST_MEASURES
     mse_lr = FORECAST_MEASURES['MSE'](y_test, y_pred_lr_test)
     mae_lr = FORECAST_MEASURES['MAE'](y_test, y_pred_lr_test)
     r2_lr = FORECAST_MEASURES['R2'](y_test, y_pred_lr_test)
@@ -125,52 +122,19 @@ def evaluate_models(train_series, test_series, config_name, lag=1):
     return results
 
 
-def run_differentiation_study(dataset_path, date_column, target_column, dataset_name):
+def run_differentiation_study(aggregated_dataset_path, dataset_name):
     print(f"\n{'='*70}")
     print(f"DIFFERENTIATION STUDY: {dataset_name}")
     print(f"{'='*70}")
     
-    print(f"\n1. Loading dataset from {dataset_path}...")
-    df = pd.read_csv(dataset_path)
-    
-    if date_column == 'datetime' and 'Time' in df.columns and 'Date' in df.columns:
-        df['datetime'] = pd.date_range(start='2023-01-10', periods=len(df), freq='15min')
-        df.set_index('datetime', inplace=True)
-    elif date_column is not None and date_column in df.columns:
-        df[date_column] = pd.to_datetime(df[date_column])
-        df.set_index(date_column, inplace=True)
-    
-    if target_column not in df.columns:
-        print(f"   Error: Target column '{target_column}' not found!")
-        return
-    
-    series = df[target_column].dropna()
+    print(f"\n1. Loading aggregated dataset from {aggregated_dataset_path}...")
+    series = pd.read_csv(aggregated_dataset_path, index_col=0, parse_dates=True).squeeze()
+    series.name = 'value'
     print(f"   Loaded {len(series)} records")
-    
-    differentiation_configs = [
-        {
-            'name': 'FirstOrder', 
-            'order': 1, 
-            'seasonal_period': None,
-            'description': 'First-order differencing (removes trend)'
-        },
-        {
-            'name': 'SecondOrder', 
-            'order': 2, 
-            'seasonal_period': None,
-            'description': 'Second-order differencing (removes quadratic trend)'
-        },
-        {
-            'name': 'Seasonal_Weekly', 
-            'order': 1, 
-            'seasonal_period': 7,
-            'description': 'First-order + seasonal differencing (period=7 for weekly patterns)'
-        },
-    ]
     
     all_results = {}
     
-    for config in differentiation_configs:
+    for config in DIFFERENTIATION_CONFIGS:
         print(f"\n2. Testing Configuration: {config['name']}")
         print(f"   {config['description']}")
         print(f"   Order: {config['order']}, Seasonal Period: {config['seasonal_period']}")
@@ -186,25 +150,25 @@ def run_differentiation_study(dataset_path, date_column, target_column, dataset_
             print(f"   Error applying differencing: {e}")
             continue
         
-        if len(differenced_series) < 20:
+        if len(differenced_series) < MIN_RECORDS_AFTER_DIFF:
             print(f"   Warning: Too few records after differencing. Skipping this configuration.")
             continue
         
-        # Manual split (professor's series_train_test_split has a bug with Series)
-        trn_size = int(len(differenced_series) * 0.70)
+        trn_size = int(len(differenced_series) * TRAIN_TEST_SPLIT)
         train_series = differenced_series.iloc[:trn_size]
         test_series = differenced_series.iloc[trn_size:]
         print(f"   Train: {len(train_series)} | Test: {len(test_series)}")
         
         results = evaluate_models(train_series, test_series, config['name'])
-        all_results[config['name']] = results
+        all_results[config['name']] = {
+            'metrics': results,
+            'differenced_series': differenced_series
+        }
         
-        # Plot original series using professor's function
-        trn_size_orig = int(len(series) * 0.70)
+        trn_size_orig = int(len(series) * TRAIN_TEST_SPLIT)
         train_orig = series.iloc[:trn_size_orig]
         test_orig = series.iloc[trn_size_orig:]
         
-        # Create dummy prediction for original series visualization
         prd_orig = pd.Series([train_orig.iloc[-1]] * len(test_orig), index=test_orig.index)
         plot_forecasting_series(
             train_orig,
@@ -212,10 +176,10 @@ def run_differentiation_study(dataset_path, date_column, target_column, dataset_
             prd_orig,
             title=f"Original Series - {dataset_name}",
             xlabel='Time',
-            ylabel=target_column
+            ylabel='value'
         )
         plt.tight_layout()
-        plt.savefig(os.path.join(IMAGES_DIR, f"{dataset_name}_{config['name']}_original.png"))
+        plt.savefig(os.path.join(IMAGES_DIR, f"{dataset_name}_{config['name'].lower()}_original.png"))
         plt.close()
         
         # Use professor's plot_forecasting_eval for Persistence model
@@ -229,7 +193,7 @@ def run_differentiation_study(dataset_path, date_column, target_column, dataset_
             title=f"Persistence Model Evaluation: {config['name']} - {dataset_name}"
         )
         plt.tight_layout()
-        plt.savefig(os.path.join(IMAGES_DIR, f"{dataset_name}_{config['name']}_persistence_eval.png"))
+        plt.savefig(os.path.join(IMAGES_DIR, f"{dataset_name}_{config['name'].lower()}_persistence_eval.png"))
         plt.close()
         
         # Plot differenced series with Persistence predictions using professor's function
@@ -240,10 +204,10 @@ def run_differentiation_study(dataset_path, date_column, target_column, dataset_
             prd_tst_persistence,
             title=f"Differenced Series: {config['name']} - {dataset_name}",
             xlabel='Time',
-            ylabel=f"{target_column} (differenced)"
+            ylabel='value (differenced)'
         )
         plt.tight_layout()
-        plt.savefig(os.path.join(IMAGES_DIR, f"{dataset_name}_{config['name']}_persistence.png"))
+        plt.savefig(os.path.join(IMAGES_DIR, f"{dataset_name}_{config['name'].lower()}_persistence.png"))
         plt.close()
         
         # Plot differenced series with LinearRegression predictions
@@ -261,7 +225,7 @@ def run_differentiation_study(dataset_path, date_column, target_column, dataset_
             title=f"LinearRegression Model Evaluation: {config['name']} - {dataset_name}"
         )
         plt.tight_layout()
-        plt.savefig(os.path.join(IMAGES_DIR, f"{dataset_name}_{config['name']}_lr_eval.png"))
+        plt.savefig(os.path.join(IMAGES_DIR, f"{dataset_name}_{config['name'].lower()}_lr_eval.png"))
         plt.close()
         
         plot_forecasting_series(
@@ -270,10 +234,10 @@ def run_differentiation_study(dataset_path, date_column, target_column, dataset_
             prd_tst_lr,
             title=f"Differenced Series: {config['name']} - {dataset_name} (LinearRegression)",
             xlabel='Time',
-            ylabel=f"{target_column} (differenced)"
+            ylabel='value (differenced)'
         )
         plt.tight_layout()
-        plt.savefig(os.path.join(IMAGES_DIR, f"{dataset_name}_{config['name']}_lr.png"))
+        plt.savefig(os.path.join(IMAGES_DIR, f"{dataset_name}_{config['name'].lower()}_lr.png"))
         plt.close()
     
     print(f"\n{'='*70}")
@@ -281,8 +245,8 @@ def run_differentiation_study(dataset_path, date_column, target_column, dataset_
     print(f"{'='*70}")
     
     comparison_data = []
-    for config_name, models in all_results.items():
-        for model_name, metrics in models.items():
+    for config_name, result_data in all_results.items():
+        for model_name, metrics in result_data['metrics'].items():
             comparison_data.append({
                 'Configuration': config_name,
                 'Model': model_name,
@@ -298,11 +262,6 @@ def run_differentiation_study(dataset_path, date_column, target_column, dataset_
     comparison_df = pd.DataFrame(comparison_data)
     print(comparison_df.to_string(index=False))
     
-    comparison_df.to_csv(
-        os.path.join(RESULTS_DIR, f"{dataset_name}_differentiation_comparison.csv"), 
-        index=False
-    )
-    
     best_idx = comparison_df['R2'].idxmax()
     best_config = comparison_df.iloc[best_idx]
     
@@ -314,6 +273,12 @@ def run_differentiation_study(dataset_path, date_column, target_column, dataset_
     print(f"   MSE: {best_config['MSE']:.4f}")
     print(f"   MAE: {best_config['MAE']:.4f}")
     print(f"   R2: {best_config['R2']:.4f}")
+    
+    best_config_name = best_config['Configuration']
+    best_differenced_series = all_results[best_config_name]['differenced_series']
+    output_path = os.path.join(RESULTS_DIR, f"{dataset_name}_differenced.csv")
+    best_differenced_series.to_csv(output_path, header=['value'])
+    print(f"\n   Best differenced dataset saved to: {output_path}")
     
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
     
@@ -341,15 +306,11 @@ def run_differentiation_study(dataset_path, date_column, target_column, dataset_
 
 if __name__ == "__main__":
     run_differentiation_study(
-        dataset_path='data/raw/economic_indicators_dataset_2010_2023.csv',
-        date_column='Date',
-        target_column='Inflation Rate (%)',
+        aggregated_dataset_path='results/aggregation/economic_aggregated.csv',
         dataset_name='economic'
     )
     
     run_differentiation_study(
-        dataset_path='data/raw/TrafficTwoMonth.csv',
-        date_column='datetime',
-        target_column='Total',
+        aggregated_dataset_path='results/aggregation/traffic_aggregated.csv',
         dataset_name='traffic'
     )

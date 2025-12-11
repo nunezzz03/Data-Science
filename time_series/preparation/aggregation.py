@@ -3,18 +3,16 @@ import os
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'utils'))
 from dslabs_functions import (
     ts_aggregation_by,
-    series_train_test_split,
     plot_forecasting_series,
     plot_forecasting_eval,
     FORECAST_MEASURES
 )
-from config import PAST_COLOR, FUTURE_COLOR, PRED_FUTURE_COLOR
+from lab5_config import TRAIN_TEST_SPLIT, LAG, AGGREGATION_CONFIGS
 
 IMAGES_DIR = os.path.join(os.path.dirname(__file__), 'images', 'aggregation')
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), 'results', 'aggregation')
@@ -59,11 +57,9 @@ def evaluate_models(train_series, test_series, config_name, lag=1):
     persistence = PersistenceModel()
     persistence.fit(train_series)
     
-    # For persistence predictions on both train and test
     y_pred_persistence_train = persistence.predict(train_series)
     y_pred_persistence_test = persistence.predict(test_series)
     
-    # Calculate metrics using professor's FORECAST_MEASURES
     mse_pers = FORECAST_MEASURES['MSE'](test_series.values, y_pred_persistence_test)
     mae_pers = FORECAST_MEASURES['MAE'](test_series.values, y_pred_persistence_test)
     r2_pers = FORECAST_MEASURES['R2'](test_series.values, y_pred_persistence_test)
@@ -83,7 +79,6 @@ def evaluate_models(train_series, test_series, config_name, lag=1):
     y_pred_lr_train = lr_model.predict(X_train)
     y_pred_lr_test = lr_model.predict(X_test)
     
-    # Calculate metrics using professor's FORECAST_MEASURES
     mse_lr = FORECAST_MEASURES['MSE'](y_test, y_pred_lr_test)
     mae_lr = FORECAST_MEASURES['MAE'](y_test, y_pred_lr_test)
     r2_lr = FORECAST_MEASURES['R2'](y_test, y_pred_lr_test)
@@ -125,15 +120,9 @@ def run_aggregation_study(dataset_path, date_column, target_column, dataset_name
     series = df[target_column]
     print(f"   Loaded {len(series)} records")
     
-    aggregation_configs = [
-        {'name': 'Daily_Mean', 'gran_level': 'D', 'agg_func': 'mean'},
-        {'name': 'Weekly_Mean', 'gran_level': 'W', 'agg_func': 'mean'},
-        {'name': 'Weekly_Sum', 'gran_level': 'W', 'agg_func': 'sum'},
-    ]
-    
     all_results = {}
     
-    for config in aggregation_configs:
+    for config in AGGREGATION_CONFIGS:
         print(f"\n2. Testing Configuration: {config['name']}")
         print(f"   Granularity: {config['gran_level']}, Function: {config['agg_func']}")
         
@@ -144,14 +133,16 @@ def run_aggregation_study(dataset_path, date_column, target_column, dataset_name
         )
         print(f"   Aggregated to {len(aggregated_series)} records")
         
-        # Manual split (professor's series_train_test_split has a bug with Series)
-        trn_size = int(len(aggregated_series) * 0.70)
+        trn_size = int(len(aggregated_series) * TRAIN_TEST_SPLIT)
         train_series = aggregated_series.iloc[:trn_size]
         test_series = aggregated_series.iloc[trn_size:]
         print(f"   Train: {len(train_series)} | Test: {len(test_series)}")
         
         results = evaluate_models(train_series, test_series, config['name'])
-        all_results[config['name']] = results
+        all_results[config['name']] = {
+            'metrics': results,
+            'aggregated_series': aggregated_series
+        }
         
         # Use professor's plot_forecasting_eval for Persistence model
         prd_trn_persistence = pd.Series(results['Persistence']['predictions_train'], index=train_series.index)
@@ -164,7 +155,7 @@ def run_aggregation_study(dataset_path, date_column, target_column, dataset_name
             title=f"Persistence Model Evaluation: {config['name']} - {dataset_name}"
         )
         plt.tight_layout()
-        plt.savefig(os.path.join(IMAGES_DIR, f"{dataset_name}_{config['name']}_persistence_eval.png"))
+        plt.savefig(os.path.join(IMAGES_DIR, f"{dataset_name}_{config['name'].lower()}_persistence_eval.png"))
         plt.close()
         
         # Plot using professor's function - Persistence predictions
@@ -178,13 +169,11 @@ def run_aggregation_study(dataset_path, date_column, target_column, dataset_name
             ylabel=target_column
         )
         plt.tight_layout()
-        plt.savefig(os.path.join(IMAGES_DIR, f"{dataset_name}_{config['name']}_persistence.png"))
+        plt.savefig(os.path.join(IMAGES_DIR, f"{dataset_name}_{config['name'].lower()}_persistence.png"))
         plt.close()
         
-        # Plot using professor's function - LinearRegression predictions
-        # Need to align predictions with test series (accounting for lag)
-        train_aligned = train_series.iloc[1:]  # Skip first value due to lag=1
-        test_aligned = test_series.iloc[1:]  # Skip first value due to lag=1
+        train_aligned = train_series.iloc[1:]
+        test_aligned = test_series.iloc[1:]
         prd_trn_lr = pd.Series(results['LinearRegression']['predictions_train'], index=train_aligned.index)
         prd_tst_lr = pd.Series(results['LinearRegression']['predictions_test'], index=test_aligned.index)
         
@@ -197,7 +186,7 @@ def run_aggregation_study(dataset_path, date_column, target_column, dataset_name
             title=f"LinearRegression Model Evaluation: {config['name']} - {dataset_name}"
         )
         plt.tight_layout()
-        plt.savefig(os.path.join(IMAGES_DIR, f"{dataset_name}_{config['name']}_lr_eval.png"))
+        plt.savefig(os.path.join(IMAGES_DIR, f"{dataset_name}_{config['name'].lower()}_lr_eval.png"))
         plt.close()
         
         plot_forecasting_series(
@@ -209,7 +198,7 @@ def run_aggregation_study(dataset_path, date_column, target_column, dataset_name
             ylabel=target_column
         )
         plt.tight_layout()
-        plt.savefig(os.path.join(IMAGES_DIR, f"{dataset_name}_{config['name']}_lr.png"))
+        plt.savefig(os.path.join(IMAGES_DIR, f"{dataset_name}_{config['name'].lower()}_lr.png"))
         plt.close()
     
     print(f"\n{'='*70}")
@@ -217,8 +206,8 @@ def run_aggregation_study(dataset_path, date_column, target_column, dataset_name
     print(f"{'='*70}")
     
     comparison_data = []
-    for config_name, models in all_results.items():
-        for model_name, metrics in models.items():
+    for config_name, result_data in all_results.items():
+        for model_name, metrics in result_data['metrics'].items():
             comparison_data.append({
                 'Configuration': config_name,
                 'Model': model_name,
@@ -229,11 +218,6 @@ def run_aggregation_study(dataset_path, date_column, target_column, dataset_name
     
     comparison_df = pd.DataFrame(comparison_data)
     print(comparison_df.to_string(index=False))
-    
-    comparison_df.to_csv(
-        os.path.join(RESULTS_DIR, f"{dataset_name}_aggregation_comparison.csv"), 
-        index=False
-    )
     
     best_idx = comparison_df['R2'].idxmax()
     best_config = comparison_df.iloc[best_idx]
@@ -246,6 +230,12 @@ def run_aggregation_study(dataset_path, date_column, target_column, dataset_name
     print(f"   MSE: {best_config['MSE']:.4f}")
     print(f"   MAE: {best_config['MAE']:.4f}")
     print(f"   R2: {best_config['R2']:.4f}")
+    
+    best_config_name = best_config['Configuration']
+    best_aggregated_series = all_results[best_config_name]['aggregated_series']
+    output_path = os.path.join(RESULTS_DIR, f"{dataset_name}_aggregated.csv")
+    best_aggregated_series.to_csv(output_path, header=['value'])
+    print(f"\n   Best aggregated dataset saved to: {output_path}")
     
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
     
