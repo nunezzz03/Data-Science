@@ -32,7 +32,7 @@ def knn_study(
     k_max: int = 25,
     lag: int = 2,
     metric: str = "accuracy",
-) -> tuple[KNeighborsClassifier | None, dict]:
+) -> tuple[KNeighborsClassifier | None, dict, figure]:
     """
     Study KNN with different K values and distance metrics.
     Returns the best model and its parameters.
@@ -46,7 +46,7 @@ def knn_study(
 
     values: dict = {}
     cols: int = len(dist_functions)
-    _, axs = subplots(1, cols, figsize=(cols * HEIGHT, HEIGHT), squeeze=False)
+    fig, axs = subplots(1, cols, figsize=(cols * HEIGHT, HEIGHT), squeeze=False)
 
     for i, dist in enumerate(dist_functions):
         values = {}
@@ -80,7 +80,7 @@ def knn_study(
             f'KNN best for k={best_params["params"][0]} with {best_params["params"][1]} distance'
         )
 
-    return best_model, best_params
+    return best_model, best_params, fig
 
 
 def knn_overfitting_study(trnX, trnY, tstX, tstY, params, file_tag, metric):
@@ -133,11 +133,10 @@ def run_for_dataset(file_tag, target, eval_metric="accuracy"):
     print(f"   Labels={labels}")
 
     # 1. Parameters Study
-    figure()
-    best_model, params = knn_study(
+    best_model, params, study_fig = knn_study(
         trnX, trnY, tstX, tstY, k_max=25, lag=2, metric=eval_metric
     )
-    savefig(os.path.join(config.IMAGES_DIR, f"{file_tag}_knn_{eval_metric}_study.png"))
+    study_fig.savefig(os.path.join(config.IMAGES_DIR, f"{file_tag}_knn_{eval_metric}_study.png"))
     close()
 
     if best_model is None:
