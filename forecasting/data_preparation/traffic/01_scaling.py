@@ -143,8 +143,6 @@ def evaluate_model(
         "MAE_test": FORECAST_MEASURES["MAE"](test, prd_test),
         "R2_train": FORECAST_MEASURES["R2"](train, prd_train),
         "R2_test": FORECAST_MEASURES["R2"](test, prd_test),
-        "MAPE_train": safe_mape(train, prd_train),
-        "MAPE_test": safe_mape(test, prd_test),
     }
 
 
@@ -321,12 +319,11 @@ def main():
     print("   interpretable metrics (RMSE ~35 vehicles).")
     print("=" * 60)
 
-    # Create comparison bar chart
-    fig, axes = plt.subplots(2, 2, figsize=(3 * HEIGHT, 2 * HEIGHT))
+    # Create comparison bar chart (only MSE, MAE, R2 as per lab sheet)
+    fig, axes = plt.subplots(1, 3, figsize=(4 * HEIGHT, HEIGHT))
 
-    # RMSE comparison
-    metrics_to_plot = ["RMSE_test", "MAE_test", "R2_test", "MAPE_test"]
-    titles = ["RMSE (Test)", "MAE (Test)", "R² (Test)", "MAPE (Test)"]
+    metrics_to_plot = ["RMSE_test", "MAE_test", "R2_test"]
+    titles = ["RMSE (Test)", "MAE (Test)", "R² (Test)"]
 
     for ax, metric, title in zip(axes.flatten(), metrics_to_plot, titles):
         pivot = results_df.pivot(index="Scaling", columns="Model", values=metric)

@@ -130,8 +130,6 @@ def evaluate_model(
         "MAE_test": mean_absolute_error(test, prd_test),
         "R2_train": r2_score(train, prd_train),
         "R2_test": r2_score(test, prd_test),
-        "MAPE_train": safe_mape(train, prd_train),
-        "MAPE_test": safe_mape(test, prd_test),
     }
     return metrics
 
@@ -360,12 +358,12 @@ def main():
         full_smoothed.to_frame(name=TARGET).to_csv(output_file)
         print(f"\nBest smoothed data saved to: {output_file}")
 
-    # Comparison bar chart
-    fig, axes = plt.subplots(2, 2, figsize=(3 * HEIGHT, 2 * HEIGHT))
+    # Comparison bar chart (only MSE, MAE, R2 as per lab sheet)
+    fig, axes = plt.subplots(1, 3, figsize=(4 * HEIGHT, HEIGHT))
     fig.suptitle(f"{DATASET_TAG} - Smoothing Results Comparison")
 
-    metrics_to_plot = ["RMSE_test", "MAE_test", "R2_test", "MAPE_test"]
-    titles = ["RMSE (Test)", "MAE (Test)", "R² (Test)", "MAPE (Test)"]
+    metrics_to_plot = ["RMSE_test", "MAE_test", "R2_test"]
+    titles = ["RMSE (Test)", "MAE (Test)", "R² (Test)"]
 
     for ax, metric, title in zip(axes.flatten(), metrics_to_plot, titles):
         pivot = results_df.pivot(index="Smoothing", columns="Model", values=metric)
