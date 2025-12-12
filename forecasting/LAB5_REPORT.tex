@@ -1,0 +1,928 @@
+\documentclass[11pt,a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% Page setup
+\geometry{margin=0.8in}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{8pt}
+
+% Title information
+\title{\textbf{Lab 5 - Time Series Forecasting Report}}
+\author{Group 03}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+%==============================================================================
+% TRAFFIC DATASET
+%==============================================================================
+\section{Traffic Dataset (TrafficTwoMonth)}
+
+%------------------------------------------------------------------------------
+\subsection{Profiling}
+%------------------------------------------------------------------------------
+
+\subsubsection{Time Series at Different Granularities}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{outputs/TrafficTwoMonth/traffic_hourly.png}
+\caption{Traffic - Time Series (Hourly Granularity)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{outputs/TrafficTwoMonth/traffic_hourly_multivariate.png}
+\caption{Traffic - Multivariate Time Series (Hourly Granularity)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/TrafficTwoMonth/traffic_daily.png}
+    \caption{Daily Granularity}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/TrafficTwoMonth/traffic_weekly.png}
+    \caption{Weekly Granularity}
+\end{subfigure}
+\caption{Traffic - Time Series at Coarser Granularities}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/TrafficTwoMonth/traffic_daily_multivariate.png}
+    \caption{Daily Multivariate}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/TrafficTwoMonth/traffic_weekly_multivariate.png}
+    \caption{Weekly Multivariate}
+\end{subfigure}
+\caption{Traffic - Multivariate Time Series at Coarser Granularities}
+\end{figure}
+
+\subsubsection{Seasonality and Distribution}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{outputs/TrafficTwoMonth/Traffic_seasonality.png}
+\caption{Traffic - Seasonality Decomposition}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/TrafficTwoMonth/Traffic_distribution_histograms.png}
+    \caption{Distribution Histograms}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/TrafficTwoMonth/Traffic_distribution_boxplots.png}
+    \caption{Distribution Boxplots}
+\end{subfigure}
+\caption{Traffic - Distribution Analysis}
+\end{figure}
+
+\subsubsection{Autocorrelation Analysis}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{outputs/TrafficTwoMonth/Traffic_lag_plot.png}
+\caption{Traffic - Lag Plot (Aggregated)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/TrafficTwoMonth/Traffic_lag_plot_original.png}
+    \caption{Original Granularity}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/TrafficTwoMonth/Traffic_lag_plot_hourly.png}
+    \caption{Hourly Granularity}
+\end{subfigure}
+\caption{Traffic - Lag Plots at Different Granularities}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{outputs/TrafficTwoMonth/Traffic_lag_plot_daily.png}
+\caption{Traffic - Lag Plot (Daily Granularity)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{outputs/TrafficTwoMonth/Traffic_autocorrelation.png}
+\caption{Traffic - Autocorrelation Function (Aggregated)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/TrafficTwoMonth/Traffic_original_autocorrelation.png}
+    \caption{Original Granularity}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/TrafficTwoMonth/Traffic_hourly_autocorrelation.png}
+    \caption{Hourly Granularity}
+\end{subfigure}
+\caption{Traffic - Autocorrelation at Different Granularities}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{outputs/TrafficTwoMonth/Traffic_daily_autocorrelation.png}
+\caption{Traffic - Autocorrelation Function (Daily Granularity)}
+\end{figure}
+
+\subsubsection{Stationarity Analysis}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/TrafficTwoMonth/Traffic_stationarity_mean.png}
+    \caption{Rolling Mean}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/TrafficTwoMonth/Traffic_stationarity_binned.png}
+    \caption{Binned Analysis}
+\end{subfigure}
+\caption{Traffic - Stationarity Visual Tests (Aggregated)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/TrafficTwoMonth/Traffic_stationarity_mean_original.png}
+    \caption{Rolling Mean}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/TrafficTwoMonth/Traffic_stationarity_binned_original.png}
+    \caption{Binned Analysis}
+\end{subfigure}
+\caption{Traffic - Stationarity Analysis (Original Granularity)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/TrafficTwoMonth/Traffic_stationarity_mean_hourly.png}
+    \caption{Rolling Mean}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/TrafficTwoMonth/Traffic_stationarity_binned_hourly.png}
+    \caption{Binned Analysis}
+\end{subfigure}
+\caption{Traffic - Stationarity Analysis (Hourly Granularity)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/TrafficTwoMonth/Traffic_stationarity_mean_daily.png}
+    \caption{Rolling Mean}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/TrafficTwoMonth/Traffic_stationarity_binned_daily.png}
+    \caption{Binned Analysis}
+\end{subfigure}
+\caption{Traffic - Stationarity Analysis (Daily Granularity)}
+\end{figure}
+
+\clearpage
+
+%------------------------------------------------------------------------------
+\subsection{Preparation}
+%------------------------------------------------------------------------------
+
+\subsubsection{Scaling}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/scaling/traffic_persistence_none.png}
+    \caption{Persistence - No Scaling}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/scaling/traffic_lr_none.png}
+    \caption{Linear Regression - No Scaling}
+\end{subfigure}
+\caption{Traffic - Scaling: Model Predictions (No Scaling)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/scaling/traffic_persistence_minmax.png}
+    \caption{Persistence - MinMax Scaling}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/scaling/traffic_lr_minmax.png}
+    \caption{Linear Regression - MinMax Scaling}
+\end{subfigure}
+\caption{Traffic - Scaling: Model Predictions (MinMax Scaling)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/scaling/traffic_persistence_standard.png}
+    \caption{Persistence - Standard Scaling}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/scaling/traffic_lr_standard.png}
+    \caption{Linear Regression - Standard Scaling}
+\end{subfigure}
+\caption{Traffic - Scaling: Model Predictions (Standard Scaling)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.48\textwidth]{data_preparation/traffic/images/scaling/traffic_scaling_none.png}
+\caption{Traffic - Scaling: No Scaling}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.48\textwidth]{data_preparation/traffic/images/scaling/traffic_scaling_minmax.png}
+\caption{Traffic - Scaling: MinMax Scaling}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.48\textwidth]{data_preparation/traffic/images/scaling/traffic_scaling_standard.png}
+\caption{Traffic - Scaling: Standard Scaling}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{data_preparation/traffic/images/scaling/traffic_scaling_comparison_chart.png}
+\caption{Traffic - Scaling: Comparison Chart}
+\end{figure}
+
+\subsubsection{Aggregation}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/aggregation/traffic_agg_Hourly_Mean_persistence.png}
+    \caption{Persistence - Hourly Mean}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/aggregation/traffic_agg_Hourly_Mean_lr.png}
+    \caption{Linear Regression - Hourly Mean}
+\end{subfigure}
+\caption{Traffic - Aggregation: Model Predictions (Hourly Mean)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/aggregation/traffic_agg_4Hourly_Mean_persistence.png}
+    \caption{Persistence - 4-Hourly Mean}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/aggregation/traffic_agg_4Hourly_Mean_lr.png}
+    \caption{Linear Regression - 4-Hourly Mean}
+\end{subfigure}
+\caption{Traffic - Aggregation: Model Predictions (4-Hourly Mean)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/aggregation/traffic_agg_Daily_Mean_persistence.png}
+    \caption{Persistence - Daily Mean}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/aggregation/traffic_agg_Daily_Mean_lr.png}
+    \caption{Linear Regression - Daily Mean}
+\end{subfigure}
+\caption{Traffic - Aggregation: Model Predictions (Daily Mean)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{data_preparation/traffic/images/aggregation/traffic_aggregation_comparison_chart.png}
+\caption{Traffic - Aggregation: Comparison Chart}
+\end{figure}
+
+\subsubsection{Differentiation}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/differentiation/traffic_diff_No_Diff_persistence.png}
+    \caption{Persistence - No Differentiation}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/differentiation/traffic_diff_No_Diff_lr.png}
+    \caption{Linear Regression - No Differentiation}
+\end{subfigure}
+\caption{Traffic - Differentiation: Model Predictions (No Differentiation)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/differentiation/traffic_diff_First_Order_persistence.png}
+    \caption{Persistence - First Order}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/differentiation/traffic_diff_First_Order_lr.png}
+    \caption{Linear Regression - First Order}
+\end{subfigure}
+\caption{Traffic - Differentiation: Model Predictions (First Order)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/differentiation/traffic_diff_Second_Order_persistence.png}
+    \caption{Persistence - Second Order}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/differentiation/traffic_diff_Second_Order_lr.png}
+    \caption{Linear Regression - Second Order}
+\end{subfigure}
+\caption{Traffic - Differentiation: Model Predictions (Second Order)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{data_preparation/traffic/images/differentiation/traffic_differentiation_comparison_chart.png}
+\caption{Traffic - Differentiation: Comparison Chart}
+\end{figure}
+
+\subsubsection{Smoothing}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/smoothing/traffic_persistence_No_Smoothing.png}
+    \caption{Persistence - No Smoothing}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/smoothing/traffic_lr_No_Smoothing.png}
+    \caption{Linear Regression - No Smoothing}
+\end{subfigure}
+\caption{Traffic - Smoothing: Model Predictions (No Smoothing)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/smoothing/traffic_persistence_SMA_w3.png}
+    \caption{Persistence - SMA w=3}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/smoothing/traffic_lr_SMA_w3.png}
+    \caption{Linear Regression - SMA w=3}
+\end{subfigure}
+\caption{Traffic - Smoothing: Model Predictions (SMA w=3)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/smoothing/traffic_persistence_SMA_w7.png}
+    \caption{Persistence - SMA w=7}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/smoothing/traffic_lr_SMA_w7.png}
+    \caption{Linear Regression - SMA w=7}
+\end{subfigure}
+\caption{Traffic - Smoothing: Model Predictions (SMA w=7)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/smoothing/traffic_persistence_SMA_w14.png}
+    \caption{Persistence - SMA w=14}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/smoothing/traffic_lr_SMA_w14.png}
+    \caption{Linear Regression - SMA w=14}
+\end{subfigure}
+\caption{Traffic - Smoothing: Model Predictions (SMA w=14)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/smoothing/traffic_persistence_EWMA_span3.png}
+    \caption{Persistence - EWMA span=3}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/smoothing/traffic_lr_EWMA_span3.png}
+    \caption{Linear Regression - EWMA span=3}
+\end{subfigure}
+\caption{Traffic - Smoothing: Model Predictions (EWMA span=3)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/smoothing/traffic_persistence_EWMA_span7.png}
+    \caption{Persistence - EWMA span=7}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/smoothing/traffic_lr_EWMA_span7.png}
+    \caption{Linear Regression - EWMA span=7}
+\end{subfigure}
+\caption{Traffic - Smoothing: Model Predictions (EWMA span=7)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/smoothing/traffic_persistence_EWMA_span14.png}
+    \caption{Persistence - EWMA span=14}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/traffic/images/smoothing/traffic_lr_EWMA_span14.png}
+    \caption{Linear Regression - EWMA span=14}
+\end{subfigure}
+\caption{Traffic - Smoothing: Model Predictions (EWMA span=14)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{data_preparation/traffic/images/smoothing/traffic_smoothing_comparison_chart.png}
+\caption{Traffic - Smoothing: Comparison Chart}
+\end{figure}
+
+\clearpage
+
+%==============================================================================
+% ECONOMIC DATASET
+%==============================================================================
+\section{Economic Dataset (USA Inflation Rate)}
+
+%------------------------------------------------------------------------------
+\subsection{Profiling}
+%------------------------------------------------------------------------------
+
+\subsubsection{Time Series at Different Granularities}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{outputs/EconomicUSA/economic_monthly.png}
+\caption{Economic - Time Series (Monthly Granularity)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{outputs/EconomicUSA/economic_monthly_multivariate.png}
+\caption{Economic - Multivariate Time Series (Monthly Granularity)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/EconomicUSA/economic_quarterly.png}
+    \caption{Quarterly Granularity}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/EconomicUSA/economic_yearly.png}
+    \caption{Yearly Granularity}
+\end{subfigure}
+\caption{Economic - Time Series at Coarser Granularities}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/EconomicUSA/economic_quarterly_multivariate.png}
+    \caption{Quarterly Multivariate}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/EconomicUSA/economic_yearly_multivariate.png}
+    \caption{Yearly Multivariate}
+\end{subfigure}
+\caption{Economic - Multivariate Time Series at Coarser Granularities}
+\end{figure}
+
+\subsubsection{Seasonality and Distribution}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{outputs/EconomicUSA/Economic_seasonality.png}
+\caption{Economic - Seasonality Decomposition}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/EconomicUSA/Economic_distribution_histograms.png}
+    \caption{Distribution Histograms}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/EconomicUSA/Economic_distribution_boxplots.png}
+    \caption{Distribution Boxplots}
+\end{subfigure}
+\caption{Economic - Distribution Analysis}
+\end{figure}
+
+\subsubsection{Autocorrelation Analysis}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{outputs/EconomicUSA/Economic_lag_plot.png}
+\caption{Economic - Lag Plot (Aggregated)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/EconomicUSA/Economic_lag_plot_original.png}
+    \caption{Original Granularity}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/EconomicUSA/Economic_lag_plot_yearly.png}
+    \caption{Yearly Granularity}
+\end{subfigure}
+\caption{Economic - Lag Plots at Different Granularities}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{outputs/EconomicUSA/Economic_autocorrelation.png}
+\caption{Economic - Autocorrelation Function (Aggregated)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/EconomicUSA/Economic_original_autocorrelation.png}
+    \caption{Original Granularity}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/EconomicUSA/Economic_yearly_autocorrelation.png}
+    \caption{Yearly Granularity}
+\end{subfigure}
+\caption{Economic - Autocorrelation at Different Granularities}
+\end{figure}
+
+\subsubsection{Stationarity Analysis}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/EconomicUSA/Economic_stationarity_mean.png}
+    \caption{Rolling Mean}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/EconomicUSA/Economic_stationarity_binned.png}
+    \caption{Binned Analysis}
+\end{subfigure}
+\caption{Economic - Stationarity Visual Tests (Aggregated)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/EconomicUSA/Economic_stationarity_mean_original.png}
+    \caption{Rolling Mean}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/EconomicUSA/Economic_stationarity_binned_original.png}
+    \caption{Binned Analysis}
+\end{subfigure}
+\caption{Economic - Stationarity Analysis (Original Granularity)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/EconomicUSA/Economic_stationarity_mean_yearly.png}
+    \caption{Rolling Mean}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{outputs/EconomicUSA/Economic_stationarity_binned_yearly.png}
+    \caption{Binned Analysis}
+\end{subfigure}
+\caption{Economic - Stationarity Analysis (Yearly Granularity)}
+\end{figure}
+
+\clearpage
+
+%------------------------------------------------------------------------------
+\subsection{Preparation}
+%------------------------------------------------------------------------------
+
+\subsubsection{Scaling}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/scaling/economic_usa_persistence_No_Scaling_Baseline.png}
+    \caption{Persistence - No Scaling Baseline}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/scaling/economic_usa_lr_No_Scaling_Baseline.png}
+    \caption{Linear Regression - No Scaling Baseline}
+\end{subfigure}
+\caption{Traffic - Scaling: Model Predictions (No Scaling Baseline)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/scaling/economic_usa_persistence_MinMaxScaler_[01].png}
+    \caption{Persistence - MinMaxScaler [0,1]}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/scaling/economic_usa_lr_MinMaxScaler_[01].png}
+    \caption{Linear Regression - MinMaxScaler [0,1]}
+\end{subfigure}
+\caption{Traffic - Scaling: Model Predictions (MinMaxScaler [0,1])}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/scaling/economic_usa_persistence_StandardScaler_Z-Score.png}
+    \caption{Persistence - StandardScaler Z-Score}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/scaling/economic_usa_lr_StandardScaler_Z-Score.png}
+    \caption{Linear Regression - StandardScaler Z-Score}
+\end{subfigure}
+\caption{Traffic - Scaling: Model Predictions (StandardScaler Z-Score)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{data_preparation/economic/images/scaling/economic_usa_scaling_comparison_chart.png}
+\caption{Economic - Scaling: Comparison Chart}
+\end{figure}
+
+\subsubsection{Aggregation}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/aggregation/economic_usa_agg_Monthly_persistence.png}
+    \caption{Persistence - Monthly}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/aggregation/economic_usa_agg_Monthly_lr.png}
+    \caption{Linear Regression - Monthly}
+\end{subfigure}
+\caption{Economic - Aggregation: Model Predictions (Monthly)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/aggregation/economic_usa_agg_Quarterly_Mean_persistence.png}
+    \caption{Persistence - Quarterly Mean}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/aggregation/economic_usa_agg_Quarterly_Mean_lr.png}
+    \caption{Linear Regression - Quarterly Mean}
+\end{subfigure}
+\caption{Economic - Aggregation: Model Predictions (Quarterly Mean - Best Approach)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/aggregation/economic_usa_agg_Quarterly_Median_persistence.png}
+    \caption{Persistence - Quarterly Median}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/aggregation/economic_usa_agg_Quarterly_Median_lr.png}
+    \caption{Linear Regression - Quarterly Median}
+\end{subfigure}
+\caption{Economic - Aggregation: Model Predictions (Quarterly Median)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{data_preparation/economic/images/aggregation/economic_aggregation_summary.png}
+\caption{Economic - Aggregation: Summary}
+\end{figure}
+
+\subsubsection{Differentiation}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/differentiation/economic_usa_diff_No_Diff_persistence.png}
+    \caption{Persistence - No Differentiation}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/differentiation/economic_usa_diff_No_Diff_lr.png}
+    \caption{Linear Regression - No Differentiation}
+\end{subfigure}
+\caption{Traffic - Differentiation: Model Predictions (No Differentiation)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/differentiation/economic_usa_diff_First_Order_persistence.png}
+    \caption{Persistence - First Order}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/differentiation/economic_usa_diff_First_Order_lr.png}
+    \caption{Linear Regression - First Order}
+\end{subfigure}
+\caption{Traffic - Differentiation: Model Predictions (First Order)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/differentiation/economic_usa_diff_Second_Order_persistence.png}
+    \caption{Persistence - Second Order}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/differentiation/economic_usa_diff_Second_Order_lr.png}
+    \caption{Linear Regression - Second Order}
+\end{subfigure}
+\caption{Traffic - Differentiation: Model Predictions (Second Order)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{data_preparation/economic/images/differentiation/economic_differentiation_summary.png}
+\caption{Economic - Differentiation: Summary}
+\end{figure}
+
+\subsubsection{Smoothing}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/smoothing/economic_usa_persistence_No_Smoothing.png}
+    \caption{Persistence - No Smoothing}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/smoothing/economic_usa_lr_No_Smoothing.png}
+    \caption{Linear Regression - No Smoothing}
+\end{subfigure}
+\caption{Economic - Smoothing: Model Predictions (No Smoothing)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/smoothing/economic_usa_persistence_SMA_w3.png}
+    \caption{Persistence - SMA w=3}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/smoothing/economic_usa_lr_SMA_w3.png}
+    \caption{Linear Regression - SMA w=3}
+\end{subfigure}
+\caption{Economic - Smoothing: Model Predictions (SMA w=3)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/smoothing/economic_usa_persistence_SMA_w6.png}
+    \caption{Persistence - SMA w=6}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/smoothing/economic_usa_lr_SMA_w6.png}
+    \caption{Linear Regression - SMA w=6}
+\end{subfigure}
+\caption{Economic - Smoothing: Model Predictions (SMA w=6)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/smoothing/economic_usa_persistence_EWMA_span3.png}
+    \caption{Persistence - EWMA span=3}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/smoothing/economic_usa_lr_EWMA_span3.png}
+    \caption{Linear Regression - EWMA span=3}
+\end{subfigure}
+\caption{Economic - Smoothing: Model Predictions (EWMA span=3)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/smoothing/economic_usa_persistence_EWMA_span6.png}
+    \caption{Persistence - EWMA span=6}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth]{data_preparation/economic/images/smoothing/economic_usa_lr_EWMA_span6.png}
+    \caption{Linear Regression - EWMA span=6}
+\end{subfigure}
+\caption{Economic - Smoothing: Model Predictions (EWMA span=6)}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{data_preparation/economic/images/smoothing/economic_usa_smoothing_comparison_chart.png}
+\caption{Economic - Smoothing: Comparison Chart}
+\end{figure}
+
+\clearpage
+
+%==============================================================================
+% SUMMARY TABLES
+%==============================================================================
+\section{Summary: Best Approaches}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Step} & \textbf{Traffic Dataset} & \textbf{Economic Dataset} \\
+\midrule
+\textbf{Scaling} & No Scaling (Persistence, R²=0.643) & No Scaling (LR, R²=-0.081) \\
+\textbf{Aggregation} & Hourly Mean (LR, R²=-0.002) & Quarterly Mean (LR, R²=-0.519) \\
+\textbf{Differentiation} & No Diff (LR, R²=-0.002) & Second Order (LR, R²=+0.004) \\
+\textbf{Smoothing} & No Smoothing (LR, R²$\approx$0) & SMA w=6 (LR, R²=0.001) \\
+\bottomrule
+\end{tabular}
+\caption{Best approach selected for each preparation step (with best model and R² on test set)}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Dataset} & \textbf{Model} & \textbf{RMSE} & \textbf{MAE} & \textbf{R²} \\
+\midrule
+\textbf{Traffic} & Persistence & 0.361 & 0.288 & -2.110 \\
+\textbf{Traffic} & Linear Regression & 0.205 & 0.161 & $\approx$0 \\
+\midrule
+\textbf{Economic} & Persistence & 0.622 & 0.601 & -0.351 \\
+\textbf{Economic} & Linear Regression & 0.535 & 0.464 & 0.001 \\
+\bottomrule
+\end{tabular}
+\caption{Final model performance after all preparation steps (on test set)}
+\end{table}
+
+\end{document}
