@@ -42,7 +42,7 @@ plt.style.use(f"{DATA_SCIENCE_ROOT}/utils/dslabs.mplstyle")
 
 # Configuration
 DATASET_TAG = "traffic"
-TARGET = "value"
+TARGET = "Total"
 TRAIN_PCT = 0.90
 
 # Input file from previous pipeline step (differentiation)
