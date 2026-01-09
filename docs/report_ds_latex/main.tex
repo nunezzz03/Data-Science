@@ -59,7 +59,7 @@
     %\setlength\extrarowheight{7pt}
     \begin{tabular}{ |l|l l|l| }
         \hline
-        \multirow{4}{6em}{\textbf{Team nr: } 18} & \textbf{Student 1: } Afonso Mateus & \textbf{IST nr: }Insert here\\
+        \multirow{4}{6em}{\textbf{Team nr: } 18} & \textbf{Student 1: } Afonso Mateus & \textbf{IST nr: }107316 \\
         & \textbf{Student 2: } Dinis Ribeiro & \textbf{IST nr:} Insert here \\
         & \textbf{Student 3: } João Nunes & \textbf{IST nr: }Insert here \\
         & \textbf{Student 4: } Gonçalo Frutuoso & \textbf{IST nr: }113217 \\
@@ -313,18 +313,17 @@
 \end{figure}
 
 \section{MODELS' EVALUATION}
-\ctext[RGB]{190,190,190}{Shall be used to point out any important decision taken during the training, including training strategy and evaluation measures used.  \textbf{Shall not exceed 500 characters.}}
+{All models were trained on data prepared in previous stages (encoding, mvi, outlier treatment, scaling, balancing, feature selection). A stratified 70/30 train-test split was used. Five metrics assessed performance: accuracy, precision, recall, F1-score, and AUC. Both training and test set performance were covered for most models to identify overfitting across hyperparameter configurations.}
 
 \subsection*{\textit{Na{\"i}ve Bayes}}
-\ctext[RGB]{190,190,190}{Shall be used to present the results achieved with each one of Na{\"i}ve Bayes implementations, comparing and proposing explanations for them. If any of the implementations is not used, a justification for it shall be presented. Shall be used to present the evaluation of the best model achieved.  \textbf{Shall not exceed 300 characters.}}
-
+{Tested GaussianNB and BernoulliNB estimators. Both made identical predictions: different probabilistic models yielded equivalent decision boundaries on preprocessed data. GaussianNB selected (could have selected either one) as best by accuracy: 0.82 for accidents dataset and 0.97 for flights.}
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{accidents_nb_NB_best_accuracy_eval.png}
+\centering\includegraphics[width=0.9\textwidth]{accidents_nb_accuracy_study.png}
 \caption{Na{\"i}ve Bayes alternatives comparison for dataset 1}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{flights_nb_NB_best_accuracy_eval.png}
+\centering\includegraphics[width=0.9\textwidth]{flights_nb_accuracy_study.png}
 \caption{Na{\"i}ve Bayes alternative comparison for dataset 2}
 \end{figure}
 
@@ -335,13 +334,13 @@
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\textwidth]{flights_nb_NB_best_acuracy_eval.png}
+        \includegraphics[width=\textwidth]{flights_nb_NB_best_accuracy_eval.png}
     \end{subfigure}
     \caption{Na{\"i}ve Bayes best model results for dataset 1 (left) and dataset 2 (right)}
 \end{figure}
 
 \subsection*{\textit{KNN}}
-\ctext[RGB]{190,190,190}{Shall be used to present the results achieved through different similarity measures and KNN parameterisations. The results shall be compared and explanations for them shall be presented. The justification for the chosen similarity measures shall be presented. Shall be used to address the overfitting phenomenon, studying the conditions under which models face it. Shall be used to present the evaluation of the best model achieved.  \textbf{Shall not exceed 500 characters.}}
+{Tested k=[1-25, step=2] with Manhattan, Euclidean, and Chebyshev distances: All performed similarly. Manhattan achieved highest accuracy and was selected (k=23 for accidents, k=5 for flights) as it handles one-hot encoded features better. Both datasets exhibited overfitting at low k: training accuracy peaked at 1 (k=1) due to memorization of training data. As k increased, training accuracy decreased while test performance stabilized.}
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{accidents_knn_accuracy_study.png}
@@ -378,7 +377,7 @@
 \end{figure}
 
 \subsection*{\textit{Decision Trees}}
-\ctext[RGB]{190,190,190}{Shall be used to present the results achieved through different parameterisations for the train of decision trees. The results shall be compared and explanations for them shall be presented. Shall be used to address the overfitting phenomenon, studying the conditions under which models face it. Shall be used to present the evaluation of the best model achieved. Shall be used to present the best tree achieved and its succinct description.  \textbf{Shall not exceed 500 characters.}}
+{Tested max\_depth=[2-30, step=2] with entropy and gini criteria. Both produced nearly identical curves as they rank splits similarly just using different scales. Longer trees exhibited overfitting meaning training accuracy increased while test accuracy declined, indicating the model learned just noise rather than generalizable patterns. Entropy achieved highest accuracy (max\_depth=8 for accidents, max\_depth=2 for flights). Best trees are shown at section's end.}
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{accidents_dt_accuracy_study.png}
@@ -425,7 +424,7 @@
 \end{figure}
 
 \subsection*{\textit{Random Forests}}
-\ctext[RGB]{190,190,190}{Shall be used to present the results achieved through different parameterisations for the train of random forests. The results shall be compared and explanations for them shall be presented. Shall be used to address the overfitting phenomenon, studying the conditions under which models face it. Shall be used to present the evaluation of the best model achieved. May be used to present the most important variables in the model.  \textbf{Shall not exceed 500 characters.}}
+{Tested n\_estimators=[100-1000] with max\_depth=[2, 5, 7] and max\_features=[0.1, 0.3, 0.5, 0.7, 0.9]. Performance stabilized at 100 trees for both datasets. Slight accuracy improvements observed as max\_depth and max\_features increased, particularly for accidents dataset. Overfitting study revealed no train/test gap across all configurations. For accidents the most important variable is injuries\_total and for flights is Month.}
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{accidents_rf_accuracy_study.png}
@@ -474,7 +473,7 @@
 \end{figure}
 
 \subsection*{\textit{Gradient Boosting}}
-\ctext[RGB]{190,190,190}{Shall be used to present the results achieved through different parameterisations for the train of gradient boosting. The results shall be compared and explanations for them shall be presented. Shall be used to address the overfitting phenomenon, studying the conditions under which models face it.  Shall be used to present the evaluation of the best model achieved. May be used to present the most important variables in the model.  \textbf{Shall not exceed 500 characters.}}
+{Tested n\_estimators=[100-1000] with max\_depth=[2, 5, 7] and learning\_rate=[0.1, 0.3, 0.5]. Neither n\_estimators nor learning\_rate significantly impacted performance but the impact was more evident in the accidents dataset. Overfitting study (n\_estimators=[2, 502, 1002, 2002]) showed training accuracy increased while test performance stagnated for a bigger number of estimators. For accidents the most important variable is injuries\_total and for flights is DayofMonth.}
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{accidents_gb_accuracy_study.png}
@@ -523,7 +522,7 @@
 \end{figure}
 
 \subsection*{\textit{Multi-Layer Perceptrons}}
-\ctext[RGB]{190,190,190}{Shall be used to present the results achieved through different parameterisations for the train of MLPs. The results shall be compared and explanations for them shall be presented. Shall be used to address the overfitting phenomenon, studying the conditions under which models face it. Shall be used to present the evaluation of the best model achieved.  \textbf{Shall not exceed 500 characters.}}
+{Tested architectures [(50), (100), (50, 25), (100, 50), (100, 50, 25)] with learning\_rate=[0.001, 0.01, 0.1] using ReLU activation function and Adam solver. Simpler architectures stable across learning rates. Deepest network sensitive to learning rates (degrading with larger lr) on accidents dataset but not flights. No overfitting observed across 3000 iterations. As expected the most accurate MLPs were: ((50, 25), 0.01) for accidents, ((100, 50), 0.05) for flights.}
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{accidents_mlp_accuracy_architecture_study.png}
@@ -550,18 +549,6 @@
 \begin{figure}[H]
     \centering
     \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\textwidth]{accidents_mlp_accuracy_iterations_study.png}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.45\textwidth}
-        \includegraphics[width=\textwidth]{flights_mlp_accuracy_iterations_study.png}
-    \end{subfigure}
-    \caption{Loss curve analysis for dataset 1 (left) and dataset 2 (right)}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}[b]{0.45\textwidth}
         \includegraphics[width=\textwidth]{accidents_mlp_MLP_best_accuracy_eval.png}
     \end{subfigure}
     \hfill
@@ -572,10 +559,7 @@
 \end{figure}
 
 \section{CRITICAL ANALYSIS}
-\ctext[RGB]{190,190,190}{Shall be used to present a summary of the results achieved with the different modelling techniques, and the impact of the different preparation tasks on their performance. 
-A cross-analysis of the different models may also be presented, identifying the most relevant variables common to all of them (when possible) and the relation among the patterns identified within the different classifiers.
-A critical assessment of the best models shall be presented, clearly stating if the models seem to be good enough for the problem at hand. \textbf{Additional charts may be presented here.  Shall not exceed 2000 characters.}}
-
+{All models achieved strong performance on accidents dataset (in terms of accuracy and f1 measures) with balanced predictions across both classes. However, flights dataset showed how important balancing is: despite 0.97 accuracy, all models except KNN predicted only the majority class (KNN detected minimal minority instances, F1=0.04). Flights dataset was extremely imbalanced (365 True, 11870 False: 3\% minority). Data preparation significantly changed results: encoding transformed categorical variables into numerical format, enabling sklearn algorithms to run; scaling (0-1 normalization) was essential for KNN where unscaled features would dominate distance calculations. At the same time, balancing techniques proved insufficient for flights dataset, where extreme class imbalance persisted, causing most models to mistakenly predict the majority class. Variable importance analysis revealed consensus across tree-based models: injuries\_total ranked highest for accidents (root node, top in RF/GB), while Month and DayofMonth emerged as key predictors for flights. For accidents, all models produced nearly identical confusion matrices with similar error distributions. For flights, all models except KNN generated identical failure patterns (11870 True Negatives, 365 False Negatives, 0 True Positives), indicating systematic majority-class prediction. Simple models (Naive Bayes) and complex models (Random Forests, Gradient Boosting, MLPs) achieved comparable accuracy levels, suggesting decision boundaries are not highly non-linear. This consistent performance across diverse model families validates that data characteristics, rather than model architecture choice, fundamentally drive classification results. Based on the results obtained, the best models perform well at predicting crash\_type but fail at predicting cancelled. Even though they predict accurately when a flight is not cancelled, they cannot predict when it is, which is the most impactful situation for a passenger.}
 
 \begin{center}
 	\section*{\fontsize{0.75cm}{1cm}\selectfont TIME SERIES ANALYSIS}
