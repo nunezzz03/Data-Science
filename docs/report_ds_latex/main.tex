@@ -117,7 +117,7 @@ Records-to-variables ratio exceeds 10,000:1 for both sets, mitigating overfittin
 \end{figure}
 
 \subsection*{\textit{Data Distribution}}
-Flights feature space shows extreme positive skewness (e.g., Distance), while Accidents is dominated by categorical redundancies. Class distribution charts confirm severe imbalance in both targets (particularly the minority classes \textit{'Cancelled'} and \textit{'Injury-related'}), necessitating resampling techniques like SMOTE to prevent majority-class bias.
+Flights feature space shows extreme positive skewness (e.g., Distance), while Accidents is dominated by categorical redundancies. Class distribution charts confirm severe imbalance in both targets (particularly the minority classes \textit{'Cancelled'} and \textit{'crash_type'}), necessitating resampling techniques like SMOTE to prevent majority-class bias.
 
 \begin{figure}[H]
     \centering
@@ -667,7 +667,7 @@ Target variables exhibit disparate sampling frequencies: Traffic (TS1) is native
 \end{figure}
 
 \subsection*{\textit{Data Distribution}}
-Hourly Traffic (TS1) exhibits a bimodal daily profile driven by rush hour peaks, smoothing to a Gaussian-like distribution when aggregated to weekly means. TS2 (Economics) shows high variance and a persistent deterministic trend. Boxplots across granularities reveal that aggregation reduces outlier influence but also diminishes the local variance signal. Lag plots and ACF correlograms confirm strong autocorrelation in TS1 at lag 24 (daily cycle) and persistent trends in TS2, justifying the use of autoregressive models.
+Hourly Traffic (TS1) exhibits a bimodal daily profile driven by rush hour peaks, smoothing to a Gaussian-like distribution when aggregated to weekly means. TS2 (Economics) shows high variance and a persistent deterministic trend on the long-term, with some short-term shock patterns. Boxplots across granularities reveal that aggregation reduces outlier influence but also diminishes the local variance signal. Lag plots and ACF correlograms confirm strong autocorrelation in TS1 at lag 24 (daily cycle) and persistent trends in TS2, justifying the use of autoregressive models.
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{Traffic_distribution_boxplots.png}
