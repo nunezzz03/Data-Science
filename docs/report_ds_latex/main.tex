@@ -24,6 +24,7 @@
 \usepackage{subcaption}
 \usepackage{geometry}
 \usepackage[section]{placeins}
+\usepackage{amsmath}
 \geometry{margin=2cm, bmargin=2cm, tmargin=3cm}
 
 \newcommand{\ctext}[3][RGB]{%
@@ -60,8 +61,8 @@
     \begin{tabular}{ |l|l l|l| }
         \hline
         \multirow{4}{6em}{\textbf{Team nr: } 18} & \textbf{Student 1: } Afonso Mateus & \textbf{IST nr: }107316 \\
-        & \textbf{Student 2: } Dinis Ribeiro & \textbf{IST nr:} Insert here \\
-        & \textbf{Student 3: } João Nunes & \textbf{IST nr: }Insert here \\
+        & \textbf{Student 2: } Dinis Ribeiro & \textbf{IST nr: }82546 \\
+        & \textbf{Student 3: } João Nunes & \textbf{IST nr: }107125 \\
         & \textbf{Student 4: } Gonçalo Frutuoso & \textbf{IST nr: }113217 \\
         \hline
     \end{tabular}
@@ -538,7 +539,7 @@ No New Plots. Applied from start.
 \end{figure}
 
 \subsection*{\textit{Gradient Boosting}}
-{Tested n\_estimators=[100-1000] with max\_depth=[2, 5, 7] and learning\_rate=[0.1, 0.3, 0.5]. Neither n\_estimators nor learning\_rate significantly impacted performance but the impact was more evident in the accidents dataset. Overfitting study (n\_estimators=[2, 502, 1002, 2002]) showed training accuracy increased while test performance stagnated for a bigger number of estimators. For accidents the most important variable is injuries\_total and for flights is DayofMonth.}
+{Tested n\_estimators=[100-1000] with max\_depth=[2, 5, 7] and learning\_rate=[0.1, 0.3, 0.5, 0.7, 0.9]. Neither n\_estimators nor learning\_rate significantly impacted performance but the impact was more evident in the accidents dataset. Overfitting study (n\_estimators=[2, 502, 1002, 2002]) showed training accuracy increased while test performance stagnated for a bigger number of estimators. For accidents the most important variable is injuries\_total and for flights is DayofMonth.}
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{accidents_gb_accuracy_study.png}
@@ -972,7 +973,7 @@ Traffic Rolling Mean tested windows w$\in${3,7,14}; w=3 selected with test R²$\
 \end{figure}
 
 \subsection*{\textit{Exponential Smoothing Model}}
-Traffic Exponential Smoothing tested α$\in$[0.1,0.9]; α=0.1 selected with train R²=-0.10, test R²≈0. All alpha values yield consistently poor performance (flat R² curve), indicating model structure inadequacy rather than parameterization issue. Exponential weighting fails to capture traffic's complex seasonality patterns. Economic smoothing shows identical failure pattern: α=0.1 best with R²=-0.11 (train), R²≈0 (test), MAPE=98\%. Forecast exhibits continuous downward drift, unable to model long-term economic dynamics. Both series require sophisticated pattern recognition beyond exponential weighting schemes.
+Traffic Exponential Smoothing tested $\alpha \in [0.1,0.9]$; $\alpha=0.1$ selected with train $R^2=-0.10$, test $R^2\approx 0$. All alpha values yield consistently poor performance (flat $R^2$ curve), indicating model structure inadequacy rather than parameterization issue. Exponential weighting fails to capture traffic's complex seasonality patterns. Economic smoothing shows identical failure pattern: $\alpha=0.1$ best with $R^2=-0.11$ (train), $R^2\approx 0$ (test), MAPE=98\%. Forecast exhibits continuous downward drift, unable to model long-term economic dynamics. Both series require sophisticated pattern recognition beyond exponential weighting schemes.
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{traffic_exponential_smoothing_R2_study.png}
@@ -1005,7 +1006,7 @@ Traffic Exponential Smoothing tested α$\in$[0.1,0.9]; α=0.1 selected with trai
 \end{figure}
 
 \subsection*{\textit{Linear Regression Model}}
-Traffic Linear Regression achieves R²=0.01 (train), R²≈0 (test), RMSE=59, MAPE=74\%. Simple linear trend fails catastrophically against hourly volatility and cyclical patterns. Economic model shows R²=-0.08 (test), producing flat horizontal forecast unable to capture economic dynamics. Linear assumption fundamentally violated in both series—traffic exhibits complex seasonality requiring nonlinear methods; economic data demands adaptive trend-following. Both forecasts demonstrate complete model inadequacy for temporal dependency modeling.
+Traffic Linear Regression achieves $R^2=0.01$ (train), $R^2\approx 0$ (test), RMSE=59, MAPE=74\%. Simple linear trend fails catastrophically against hourly volatility and cyclical patterns. Economic model shows $R^2=-0.08$ (test), producing flat horizontal forecast unable to capture economic dynamics. Linear assumption fundamentally violated in both series—traffic exhibits complex seasonality requiring nonlinear methods; economic data demands adaptive trend-following. Both forecasts demonstrate complete model inadequacy for temporal dependency modeling.
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{traffic_lr_none.png}
