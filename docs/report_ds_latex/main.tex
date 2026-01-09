@@ -209,108 +209,173 @@ One-Hot encoding of airline and airport codes in Flights leads to a high-dimensi
 \section{DATA PREPARATION}
 
 \subsection*{\textit{Variables Encoding}}
-\ctext[RGB]{190,190,190}{Shall contain all relevant information respecting to the transformation of variables. The list of variables under each one of the transformations, shall be presented. If not applied explain the reason for that, based on data characteristics.  \textbf{Shall not exceed 500 characters \textit{for each dataset.}}}
+
+Variables not mentioned were dropped over redundancy and data leakage.\\
+
+\textbf{Traffic Dataset}
+
+\textbf{Ordinal Encodings (1 = low, 4 = high):} Weather conditions; Lighting conditions; Trafficway type; Roadway surface condition; Road defects. Categories were collapsed to four levels based on a approximate perception of crash risk.
+
+\textbf{Binary encoding:} Intersection-related variable.
+
+\textbf{Hot-encoding:} traffic control device related variables.
+
+
+\textbf{Cyclical temporal encoding:}
+\texttt{crash\_hour\_sin}, \texttt{crash\_hour\_cos};
+\texttt{crash\_day\_sin}, \texttt{crash\_day\_cos};
+ \texttt{crash\_month\_sin}, \texttt{crash\_month\_cos}.
+Original variables dropped.\\
+
+\textbf{Flights Dataset}
+
+\texttt{Distance} was left unchanged.
+
+\textbf{Hot-encoding:}
+\texttt{OriginStateName} and \texttt{DestStateName}retained in their original form, as alternative encodings degraded performance. Same for non reduntant Airline variables.
+
+\textbf{Cyclical temporal encoding:}
+\texttt{CRSDepTime\_sin}, \texttt{CRSDepTime\_cos};
+ \texttt{CRSArrTime\_sin}, \texttt{CRSArrTime\_cos};
+ \texttt{DayOfWeek\_sin}, \texttt{DayOfWeek\_cos};
+\texttt{Month\_sin}, \texttt{Month\_cos}.
+Original variables dropped.
+
+
+
+
+
 
 \subsection*{\textit{Missing Value Imputation}}
-\ctext[RGB]{190,190,190}{Shall contain all relevant information and charts respecting to missing values imputation, such as the choices made and the impact of the different approaches on modelling results. Shall also clearly reveal the approach selected to proceed with the processing. If not applied explain the reason for that, based on data characteristics.  \textbf{Shall not exceed 500 characters.}}
+Two missing value imputation strategies were evaluated: frequent-value and KNN imputation. Each method assessed using the F1. F1 score used is from KNN and NB reference models.\\
+
+\textbf{Traffic Dataset}
+
+Frequent-value imputation achieved an average F1 score of 0.8553 across models, while KNN imputation achieved 0.8555. We  \textbf{proceed with KNN imputation} for subsequent analyses.\\
+
+\textbf{Flights Dataset}
+
+Process skipped. The dataset was too large and unbalanced. Creation of a smaller balanced sample was required for data preparation. Missing values were not introduced in the sample.
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{accidents_2_imputation_comparison.png}
+\centering\includegraphics[scale=0.95]{images/lab3/traffic_accidents/2_imputation_comparison.png}
 \caption{Missing values imputation results with different approaches for dataset 1}
 \end{figure}
 
-\begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{flights_2_imputation_comparison.png}
-\caption{Missing values imputation results with different approaches for dataset 2}
-\end{figure}
 
 \subsection*{\textit{Outliers Treatment}}
-\ctext[RGB]{190,190,190}{Shall contain all relevant information and charts respecting to outliers imputation, such as the choices made and the impact of the different approaches on modelling results. Shall also clearly reveal the approach selected to proceed with the processing. If not applied explain the reason for that, based on data characteristics.  \textbf{Shall not exceed 500 characters.}}
+
+Outlier treatment approaches: IQR with a 1.5 threshold and a more conservative 3-standard-deviation ($3\sigma$) method. The standard deviation method was applied only if a record had over two outlier features. Anomalies may help define classes.\\
+
+
+\textbf{Traffic dataset}
+IQR 1.5 yielded an average F1 score of 0.8632, while $3\sigma$ achieved an average of 0.8558. \textbf{IQR 1.5 method was selected}.\\
+
+\textbf{Flights dataset}
+IQR 1.5 yielded an average F1 score of 0.4023, while the $3\sigma$ achieved an average of 0.4117. The \textbf{Standard-Deviation method was selected}.
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{accidents_3_outliers_comparison.png}
+\centering\includegraphics[scale=0.55]{images/lab3/traffic_accidents/3_outliers_side_by_side.png}
 \caption{Outliers imputation results with different approaches for dataset 1}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{flights_3_outliers_comparison.png}
+\centering\includegraphics[scale=0.55]{images/lab3/flights/3_outliers_side_by_side.png}
 \caption{Outliers imputation results with different approaches for dataset 2}
 \end{figure}
 
 \subsection*{\textit{Scaling}}
-\ctext[RGB]{190,190,190}{Shall contain all relevant information and charts respecting to scaling transformation, such as the choices made and the impact of the different approaches on modelling results. Shall also clearly reveal the approach selected to proceed with the processing. If not applied explain the reason for that, based on data characteristics.  \textbf{Shall not exceed 200 characters.}}
+\textbf{Approaches:} StandardScaler (SS) and MinMaxScaler (MMS).\\
+\textbf{Traffic:} SS (avg F1 = 0.8650) and MMS (avg F1 = 0.8659); \textbf{MinMaxScaler selected}.\\
+\textbf{Flights:} SS (avg F1 = 0.4385) and MMS (avg F1 = 0.4507); \textbf{MinMaxScaler selected}.
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{accidents_4_scaling_comparison.png}
+\centering\includegraphics[scale=0.85]{images/lab3/traffic_accidents/4_scaling_minmax_eval.png}
+\centering\includegraphics[scale=0.85]{images/lab3/traffic_accidents/4_scaling_standard_eval.png}
 \caption{Scaling results with different approaches for dataset 1}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{flights_4_scaling_comparison.png}
+\centering\includegraphics[scale=0.85]{images/lab3/flights/4_scaling_minmax_eval.png}
+\centering\includegraphics[scale=0.85]{images/lab3/flights/4_scaling_standard_eval.png}
 \caption{Scaling results with different approaches for dataset 2}
 \end{figure}
 
 \subsection*{\textit{Balancing}}
-\ctext[RGB]{190,190,190}{Shall contain all relevant information and charts respecting to balancing transformation, such as the choices made and the impact of the different approaches on modelling results. Shall also clearly reveal the approach selected to proceed with the processing. If not applied explain the reason for that, based on data characteristics.  \textbf{Shall not exceed 500 characters.}}
+\textbf{Approaches:} SMOTE and Random Undersampling.\\
+\textbf{Traffic Dataset:} SMOTE (avg F1 = 0.7885) and Random Undersampling (avg F1 = 0.7849); \textbf{SMOTE selected}.\\
+\textbf{Flights Dataset:} SMOTE (avg F1 = 0.7335) and Random Undersampling (avg F1 = 0.6179); \textbf{SMOTE selected}.\\
+SMOTE generates synthetic minority samples, preserving information that would lost in Random Undersampling.
+
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{accidents_5_balancing_comparison.png}
+\centering\includegraphics[scale=0.85]{images/lab3/traffic_accidents/5_balancing_smote_eval.png}\centering\includegraphics[scale=0.85]{images/lab3/traffic_accidents/5_balancing_under_eval.png}
 \caption{Balancing results with different approaches for dataset 1}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{flights_5_balancing_comparison.png}
+\centering\includegraphics[scale=0.85]{images/lab3/flights/5_balancing_smote_eval.png}\centering\includegraphics[scale=0.85]{images/lab3/flights/5_balancing_under_eval.png}
 \caption{Balancing results with different approaches for dataset 2}
 \end{figure}
 
 \subsection*{\textit{Feature Selection}}
-\ctext[RGB]{190,190,190}{Shall contain all relevant information and charts respecting to feature selection based on filtering out redundant (based on correlation) and relevant (based on variation) variables. The different choices and their impact on the modelling results shall be presented and explained. Should also clearly reveal the approach selected to proceed with the processing. All explanations shall be based on data characteristics.  \textbf{Shall not exceed 500 characters.}}
+\textbf{Approaches:} Low Variance (LV) and Redundancy (R) Filters.\\
+\textbf{Traffic:} LV (avg F1 = 0.7885) and R (avg F1 = 0.7849); \textbf{Variance Filter selected}.\\
+\textbf{Dropped:} \texttt{weather\_condition}, \texttt{roadway\_surface\_cond}, \texttt{road\_defect}, \texttt{weather\_surface\_interaction}, \texttt{traffic\_control\_device\_Other}, \texttt{alignment\_Other}, \texttt{alignment\_STRAIGHT AND LEVEL}, \texttt{alignment\_STRAIGHT ON GRADE}, \texttt{most\_severe\_injury\_Other}. \textbf{SEE FEATURE GENERATION}\\
+\textbf{Flights:} LV (avg F1 = 0.7335) and R (avg F1 = 0.7340); \textbf{Variance Filter selected}.\\
+\textbf{Dropped:} \texttt{OriginStateName\_Utah}, \texttt{DestStateName} Hot-encoding for Hawaii, Kentucky, Louisiana, Oregon, Utah.
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{accidents_6_selection_redundancy_f1.png}
+\centering\includegraphics[scale=0.95]{images/lab3/traffic_accidents/6_selection_redundancy_f1.png}
 \caption{Feature selection of redundant variables results with different parameters for dataset 1}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{flights_6_selection_redundancy_f1.png}
+\centering\includegraphics[scale=0.95]
+{images/lab3/flights/6_selection_redundancy_f1.png}
 \caption{Feature selection of redundant variables results with different parameters for dataset 2}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{accidents_6_selection_variance_f1.png}
+\centering\includegraphics[scale=0.95]{images/lab3/traffic_accidents/6_selection_variance_f1.png}
 \caption{Feature selection of relevant variables results with different parameters for dataset 1 (variance study)} 
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{flights_6_selection_variance_f1.png}
+\centering\includegraphics[scale=0.95]{images/lab3/flights/6_selection_variance_f1.png}
 \caption{Feature selection of relevant variables results with different parameters for dataset 2 (variance study)}
 \end{figure}
 
-\subsection*{\textit{Feature Extraction (optional)}}
-\ctext[RGB]{190,190,190}{Shall contain all relevant information and charts respecting to feature extraction, in particular PCA. The different choices and their impact on the modelling results shall be presented and explained.  \textbf{Shall not exceed 200 characters.}}
-
-\begin{figure}[H]
-%\centering\includegraphics[width=0.9\textwidth]{}
-\caption{Principal components analysis and feature extraction results for dataset 1}
-\end{figure}
-
-\begin{figure}[H]
-%\centering\includegraphics[width=0.9\textwidth]{}
-\caption{Principal components analysis and feature extraction results for dataset 2}
-\end{figure}
-
 \subsection*{\textit{Additional Feature Generation (if done)}}
-\ctext[RGB]{190,190,190}{Shall contain all relevant information and charts respecting to feature generation. The different choices and their impact on the modelling results shall be presented and explained. Shall summarise all variables generated and the formula used to derive them (in a table).  \textbf{Shall not exceed 200 characters.}}
+No New Plots. Applied from start.
 
-\begin{figure}[H]
-%\centering\includegraphics[width=0.9\textwidth]{}
-\caption{Feature generation results for dataset 1}
-\end{figure}
+\[
+\text{weather\_surface\_interaction}
+=
+\frac{\text{weather\_condition} \times \text{roadway\_surface\_cond}}{16}
+\]
 
-\begin{figure}[H]
-%\centering\includegraphics[width=0.9\textwidth]{}
-\caption{Feature generation results for dataset 2}
-\end{figure}
+\[
+\text{lighting\_hour\_interaction}
+=
+\frac{\text{lighting\_condition} \times \text{crash\_hour}}{16}
+\]
+
+\[
+\text{trafficway\_intersection\_interaction}
+=
+\frac{\text{trafficway\_type} \times \text{intersection\_related\_i}}{16}
+\]
+
+\[
+\text{risk\_score}
+=
+\frac{\text{weather\_condition}
++
+\text{roadway\_surface\_cond}
++
+\text{lighting\_condition}}{12}
+\]
 
 \section{MODELS' EVALUATION}
 {All models were trained on data prepared in previous stages (encoding, mvi, outlier treatment, scaling, balancing, feature selection). A stratified 70/30 train-test split was used. Five metrics assessed performance: accuracy, precision, recall, F1-score, and AUC. Both training and test set performance were covered for most models to identify overfitting across hyperparameter configurations.}
@@ -671,94 +736,146 @@ ACF/PACF and rolling statistic analysis confirm that TS1 (Traffic) is mean-stati
 \section{DATA TRANSFORMATION}
 
 \subsection*{\textit{Aggregation}}
-\ctext[RGB]{190,190,190}{Shall describe the results of applying three different aggregations over both datasets, and identifying the granularity chosen to proceed.  \textbf{Shall not exceed 300 characters.}}
+\textbf{Traffic Dataset Granularities:} Hourly Mean, 4-Hour Mean, Daily Mean.\\
+\textbf{Procceed with Daily}\\
+\textbf{RESULTS}\\
+\textbf{Model:} LinearRegression\\
+\textbf{RMSE:} 0.2105\\
+\textbf{R2:} -0.0016\\
+
+\textbf{Economic Dataset Granularities:} Monthly Mean, Quarterly Mean, Quarterly Median.\\
+\textbf{Proceed with Quarterly Mean}\\
+\textbf{RESULTS}\\
+\textbf{Model:} LinearRegression\\
+\textbf{RMSE:} 0.2325\\
+\textbf{R2:} -0.5186\\
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{traffic_agg_Hourly_Mean_lr.png}
+\centering\includegraphics[scale=0.45]{images/Traffic/aggregation/traffic_agg_Daily_Mean_lr.png}
 \caption{Forecasting plots after different aggregations on time series 1}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{traffic_aggregation_comparison_chart.png}
+\centering\includegraphics[scale=0.45]{images/Traffic/aggregation/traffic_aggregation_comparison_chart.png}
 \caption{Forecasting results after different aggregations on time series 1}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{economic_usa_agg_Quarterly_Mean_lr.png}
+\centering\includegraphics[scale=0.45]{images/Economic/aggregation/economic_usa_agg_Quarterly_Mean_lr.png}
 \caption{Forecasting plots after different aggregations on time series 2}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{economic_aggregation_summary.png}
+\centering\includegraphics[scale=0.45]{images/Economic/aggregation/economic_aggregation_summary.png}
 \caption{Forecasting results after different aggregations on time series 2}
 \end{figure}
 
 \subsection*{\textit{Smoothing}}
-\ctext[RGB]{190,190,190}{Shall describe the results of applying smoothing transformations over both datasets, and identifying the best result to proceed.  \textbf{Shall not exceed 300 characters.}}
+
+\textbf{Traffic Dataset}\\
+Best Persistence: No Smoothing (RMSE=0.3608)\\
+Best Linear Reg:  SMA (w=3) (RMSE=0.2046)\\
+\textbf{Proceed with LR SMA (w=3)}\\
+
+\textbf{Economic Dataset}\\
+Best Persistence: SMA (w=6) (RMSE=0.6220)\\
+Best Linear Reg:  EWMA (span=3) (RMSE=0.5334)\\
+\textbf{Proceed with LR EWMA (span=3)}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{traffic_lr_SMA_w3.png}
+\centering\includegraphics[scale=0.45]{images/Traffic/smoothing/traffic_lr_SMA_w3.png}
 \caption{Forecasting plots after different smoothing parameterisations on time series 1}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{traffic_smoothing_comparison_chart.png}
+\centering\includegraphics[scale=0.25]{images/Traffic/smoothing/traffic_smoothing_comparison.png}
 \caption{Forecasting results after different smoothing parameterisations on time series 1}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{economic_usa_lr_SMA_w6.png}
+\centering\includegraphics[scale=0.45]{images/Economic/smoothing/economic_usa_lr_EWMA_span3.png}
 \caption{Forecasting plots after different smoothing parameterisations on time series 2}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{economic_usa_smoothing_comparison_chart.png}
+\centering\includegraphics[scale=0.25]{images/Economic/smoothing/economic_usa_smoothing_comparison.png}
 \caption{Forecasting results after different smoothing parameterisations on time series 2}
 \end{figure}
 
 \subsection*{\textit{Differentiation}}
-\ctext[RGB]{190,190,190}{Shall describe the results of applying two consecutive differentiation of both datasets, and identifying the best result to proceed.  \textbf{Shall not exceed 300 characters.}}
+\textbf{Traffic Dataset}\\
+\textbf{BEST RESULT:} Second Order Differentiation\\
+  Model: Linear Regression\\
+  RMSE: 0.2046\\
+  R2: -0.0000\\
+\textbf{Proceed with Second Order Differentiation}\\
 
+\textbf{Economic Dataset}\\
+\textbf{BEST RESULT:} Second Order Differentiation\\
+  Model: Linear Regression\\
+  RMSE: 0.5340\\
+  R2: 0.0043\\
+  \textbf{Proceed with Second Order Differentiation}
+  
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{traffic_diff_First_Order_lr.png}
+\centering\includegraphics[scale=0.45]{images/Traffic/differentiation/traffic_diff_First_Order_lr.png}
+\centering\includegraphics[scale=0.45]{images/Traffic/differentiation/traffic_diff_Second_Order_lr.png}
 \caption{Forecasting plots after first and second differentiation of time series 1}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{traffic_differentiation_comparison_chart.png}
+\centering\includegraphics[scale=0.4]{images/Traffic/differentiation/traffic_differentiation_comparison_chart.png}
 \caption{Forecasting results after first and second differentiation of time series 1}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{economic_usa_diff_First_Order_lr.png}
+\centering\includegraphics[scale=0.45]{images/Economic/differentiation/economic_usa_diff_First_Order_lr.png}
+\centering\includegraphics[scale=0.45]{images/Economic/differentiation/economic_usa_diff_Second_Order_lr.png}
 \caption{Forecasting plots after first and second differentiation of time series 2}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{economic_differentiation_summary.png}
+\centering\includegraphics[scale=0.40]{images/Economic/differentiation/economic_differentiation_summary.png}
 \caption{Forecasting results after first and second differentiation of time series 2}
 \end{figure}
 
-\subsection*{\textit{Other transformations (optional)}}
-\ctext[RGB]{190,190,190}{Shall describe the results of applying other transformations over both datasets, and identifying the best result to proceed.  \textbf{Shall not exceed 500 characters.}}
+\subsection*{\textit{Scaling}}
+
+\textbf{Traffic Dataset}\\
+
+$R^{2}$ is IDENTICAL across all scaling approaches because scaling is a linear transformation that doesn't change the model's ability to capture variance.\\
+
+RMSE/MAE differ in scale but represent equivalent performance. Use the original scale (no scaling) for interpretable error metrics.\\
+
+Persistence model significantly outperforms Linear Regression because traffic data has strong autocorrelation - next value depends heavily on previous value.\\
+
+RECOMMENDATION: MinMaxScaler (0-1)
+   For forecasting, use NO SCALING - it provides the most
+   interpretable metrics (RMSE ~35 vehicles).\\
+
+\textbf{Economic Dataset}\\
+Best Persistence: MinMaxScaler ([0,1]) (RMSE=0.4091)\\
+Best Linear Reg:  MinMaxScaler ([0,1]) (RMSE=0.2925)\\
+\textbf{Proceed with MinMaxScaler}\\
+
 
 \begin{figure}[H]
-%\centering\includegraphics[width=0.9\textwidth]{}
+%\centering\includegraphics[scale=0.95]{}
 \caption{Forecasting plots after applying other transformations over time series 1}
 \end{figure}
 
 \begin{figure}[H]
-%\centering\includegraphics[width=0.9\textwidth]{}
+\centering\includegraphics[scale=0.45]{images/Traffic/scaling/traffic_scaling_comparison_chart.png}
 \caption{Forecasting results after applying other transformations over time series 1}
 \end{figure}
 
 \begin{figure}[H]
-%\centering\includegraphics[width=0.9\textwidth]{}
+\centering\includegraphics[scale=0.45]{images/Economic/scaling/economic_usa_lr_MinMaxScaler_[01].png}
 \caption{Forecasting plots after applying other transformations over time series 2}
 \end{figure}
 
 \begin{figure}[H]
-%\centering\includegraphics[width=0.9\textwidth]{}
+\centering\includegraphics[scale=0.45]{images/Economic/scaling/economic_usa_scaling_comparison_chart.png}
 \caption{FForecasting results after applying other transformations over time series 2}
 \end{figure}
 
@@ -1037,6 +1154,11 @@ Traffic LSTM with sequence\_length=24 (daily cycle), hidden=32, epochs=900 achie
 \end{figure}
 
 \section{CRITICAL ANALYSIS}
-\ctext[RGB]{190,190,190}{Shall be used to present a summary of the results achieved with the different forecasting techniques, and the impact of the different preparation tasks on their performance. A critical assessment of the best models shall be presented, clearly stating if the models seem to be good enough for the problem at hand. Additional charts may be presented here.  \textbf{Shall not exceed 2000 characters.}}
+LSTM provided the best model for traffic forecasting. The model was best when a sequence of 48. The advantages of this sequence are two. First, this sequence allows for the identifying of seasonality, the daily routines of the populus. Second, it allows to identify the trend of the data, the increasing or decreasing traffic activity from day to day. The main drawback is the tendency of the model to overfit. The best result is attained for 32 hidden units, the model attains its best result, but if one wishes to reduce the likelihood of overfitting, 8 hidden units gives a sufficiently capable system. The group considers the model reliable for the task.
+
+Regarding the remaining methods such as MLP, ARIMA and Exponential Smoothing, MLP lacks LSTM recurrent structure, whilst ARIMA and Exponential Smoothing are better suited for more linear data. ARIMA and Exponential Smoothing also present challenges in terms of data preparation; applying differentiation and smoothing in data that was already prepared.
+The Economic Dataset was far harder to handle.
+
+Inflation is a mixture of politics and economics; it might as well be witchcraft. On top of the theoretical challenges of the problem domain (chaotic behavior of markets, political machinations of the practical and ideological kind, black swan events, etc) there’s also practical challenges. Very little data is available. Sometimes inflation data is not reported for long periods of time. Patterns become hard to establish. We have data from other countries, but with so little American data, it probably just adds noise. Ideally we would have more data, perhaps the addition of raw gas price data would useful. The best model appears to be ARIMA, but none of the models appears remotely reliable enough.
 
 \end{document}
