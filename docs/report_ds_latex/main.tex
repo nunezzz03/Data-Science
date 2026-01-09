@@ -844,15 +844,9 @@ Best Linear Reg:  EWMA (span=3) (RMSE=0.5334)\\
 
 \textbf{Traffic Dataset}\\
 
-$R^{2}$ is IDENTICAL across all scaling approaches because scaling is a linear transformation that doesn't change the model's ability to capture variance.\\
-
-RMSE/MAE differ in scale but represent equivalent performance. Use the original scale (no scaling) for interpretable error metrics.\\
-
-Persistence model significantly outperforms Linear Regression because traffic data has strong autocorrelation - next value depends heavily on previous value.\\
-
-RECOMMENDATION: MinMaxScaler (0-1)
-   For forecasting, use NO SCALING - it provides the most
-   interpretable metrics (RMSE ~35 vehicles).\\
+Best Persistence: MinMaxScaler ([0,1]) (RMSE=0.135494)\\
+Best Linear Reg:  MinMaxScaler ([0,1]) (RMSE=0.227015)\\
+\textbf{Proceed with MinMaxScaler}\\
 
 \textbf{Economic Dataset}\\
 Best Persistence: MinMaxScaler ([0,1]) (RMSE=0.4091)\\
@@ -861,7 +855,7 @@ Best Linear Reg:  MinMaxScaler ([0,1]) (RMSE=0.2925)\\
 
 
 \begin{figure}[H]
-%\centering\includegraphics[scale=0.95]{}
+\centering\includegraphics[scale=0.45]{images/Traffic/scaling/traffic_lr_minmax.png}
 \caption{Forecasting plots after applying other transformations over time series 1}
 \end{figure}
 
