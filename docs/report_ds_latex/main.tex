@@ -75,7 +75,7 @@ This project explores Data Science techniques for classification and forecasting
 \end{center}
 
 \section{DATA PROFILING}
-Flights/Accidents (>200k records) caused KNN bottlenecks. High missing value density in Accidents vs. complete Traffic suggests imputation is more critical for the former.
+Flights' scale (>4M) necessitated sampling. Profiling Accidents revealed 19\% hidden missingness ('UNKNOWN'), a critical data quality issue demanding specific imputation strategies.
 
 \subsection*{\textit{Data Dimensionality}}
 Records-to-variables ratio exceeds 10,000:1 for both sets, mitigating overfitting risk but increasing training complexity. Accidents feature space is dominated by categorical indicators (70\%), unlike the mixed-type Flight dataset. Imbalance in target variables ($CANCELLED < 5\%$) suggests standard accuracy will be misleading, pointing towards F1-score as a primary evaluation metric.
@@ -117,7 +117,7 @@ Records-to-variables ratio exceeds 10,000:1 for both sets, mitigating overfittin
 \end{figure}
 
 \subsection*{\textit{Data Distribution}}
-Accidents exhibit high multi-collinearity among road and weather variables. Flights show extreme positive skewness in feature distributions, with distance and taxi-out times containing outliers $3\sigma$ beyond the mean. Class distribution charts confirm severe imbalance in both datasets (particularly $CANCELLED$ and Injuries), necessitating resampling techniques like SMOTE to prevent the majority-class bias observed in baseline accuracy scores.
+Flights feature space shows extreme positive skewness (e.g., Distance), while Accidents is dominated by categorical redundancies. Class distribution charts confirm severe imbalance in both targets (particularly the minority classes \textit{'Cancelled'} and \textit{'Injury-related'}), necessitating resampling techniques like SMOTE to prevent majority-class bias.
 
 \begin{figure}[H]
     \centering
@@ -667,7 +667,7 @@ Target variables exhibit disparate sampling frequencies: Traffic (TS1) is native
 \end{figure}
 
 \subsection*{\textit{Data Distribution}}
-Hourly Traffic (TS1) shows a bimodal distribution during rush hours, smoothing to a Gaussian-like profile when aggregated weekly. TS2 (Economics) shows high variance and a persistent upward shift. Boxplots across granularities reveal that aggregation reduces outlier influence but also diminishes the local variance signal. Lag plots and ACF correlograms confirm strong autocorrelation in TS1 at lag 24 and persistent trends in TS2, justifying the use of autoregressive models.
+Hourly Traffic (TS1) exhibits a bimodal daily profile driven by rush hour peaks, smoothing to a Gaussian-like distribution when aggregated to weekly means. TS2 (Economics) shows high variance and a persistent deterministic trend. Boxplots across granularities reveal that aggregation reduces outlier influence but also diminishes the local variance signal. Lag plots and ACF correlograms confirm strong autocorrelation in TS1 at lag 24 (daily cycle) and persistent trends in TS2, justifying the use of autoregressive models.
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{Traffic_distribution_boxplots.png}
@@ -710,7 +710,7 @@ Hourly Traffic (TS1) shows a bimodal distribution during rush hours, smoothing t
 \end{figure}
 
 \subsection*{\textit{Data Stationarity}}
-ACF/PACF and rolling statistic analysis confirm that TS1 (Traffic) is mean-stationary but seasonally variant. TS2 (Economics) exhibits a clear deterministic trend and increasing variance, classifying it as non-stationary. Augmented Dickey-Fuller (ADF) tests suggest that first-order differentiation is required for TS2 to remove the trend component before applying linear models like ARIMA.
+ACF/PACF and rolling statistic analysis confirm that TS1 (Traffic) maintains a stable long-term mean despite strong seasonal variance. TS2 (Economics) exhibits a clear deterministic trend and increasing variance, classifying it as non-stationary. Augmented Dickey-Fuller (ADF) tests suggest that first-order differentiation is required for TS2 to remove the trend component before applying linear models like ARIMA.
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{Traffic_seasonality.png}

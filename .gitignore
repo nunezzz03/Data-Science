@@ -81,4 +81,5 @@ structure.txt
 *blx.bib
 .bak 
 .mtc
+*.synctex(busy)
 build/

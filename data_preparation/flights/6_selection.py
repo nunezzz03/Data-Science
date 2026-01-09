@@ -33,7 +33,7 @@ def run_selection():
         max_threshold=0.5,
         lag=0.05,
         metric="f1",
-        file_tag="traffic_accidents",
+        file_tag="flights",
     )
 
     plt.close()
@@ -41,15 +41,15 @@ def run_selection():
     # Move the generated plot to images dir
     try:
         shutil.move(
-            "traffic_accidents_fs_low_var_f1_study.png",
+            "flights_fs_low_var_f1_study.png",
             os.path.join(config.IMAGES_DIR, "6_selection_variance_f1.png"),
         )
     except Exception as e:
         print(f"Warning: Could not move variance study plot: {e}")
 
     # Find best threshold from results
-    max_threshold = 0.25
-    lag = 0.01
+    max_threshold = 0.5
+    lag = 0.05
 
     options_var = [
         round(i * lag, 3) for i in range(1, math.ceil(max_threshold / lag + lag))
@@ -104,7 +104,7 @@ def run_selection():
         min_threshold=0.85,
         lag=0.02,
         metric="f1",
-        file_tag="traffic_accidents",
+        file_tag="flights",
     )
 
     plt.close()
@@ -112,7 +112,7 @@ def run_selection():
     # Move the generated plot to images dir
     try:
         shutil.move(
-            "traffic_accidents_fs_redundancy_f1_study.png",
+            "flights_fs_redundancy_f1_study.png",
             os.path.join(config.IMAGES_DIR, "6_selection_redundancy_f1.png"),
         )
     except Exception as e:
@@ -227,7 +227,6 @@ def run_selection():
         prd_knn = best_knn.predict(tstX)
         cnf_mtx_knn = ds.confusion_matrix(tstY, prd_knn, labels=labels)
 
-        ### FIX ADDED: New figure
         plt.figure()
         ds.plot_confusion_matrix(cnf_mtx_knn, labels)
         plt.title(f"Confusion Matrix: {best_name} - KNN")
