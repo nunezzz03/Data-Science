@@ -67,17 +67,17 @@
     \end{tabular}
 \end{center}
 
-\ctext[RGB]{190,190,190}{The present document presents a template for the Data Science Project report. It specifies the mandatory format and suggests the structure to follow. All text with grey background shall be replaced with the analysis made over the datasets. Put your charts in the \textit{images} folder, and set the name of the file in the \textit{includegraphics} command, after uncommenting it.} 
+This project explores Data Science techniques for classification and forecasting. Using four diverse datasets Traffic, Accidents, Flights, and Economic Indicators. We applied full pipelines from profiling and preparation up to advanced modelling and time series forecasting.
 
 \begin{center}
 	\section*{\fontsize{0.75cm}{1cm}\selectfont CLASSIFICATION}
 \end{center}
 
 \section{DATA PROFILING}
-\ctext[RGB]{190,190,190}{May be used to describe any useful observation about the data, and that was used in the current project. An example is the use of any domain knowledge to process the data or evaluate the results. \textbf{Shall not exceed 200 characters.}}
+Flights/Accidents (>200k records) caused KNN bottlenecks. High missing value density in Accidents vs. complete Traffic suggests imputation is more critical for the former.
 
 \subsection*{\textit{Data Dimensionality}}
-\ctext[RGB]{190,190,190}{Shall contain all relevant information and charts respecting to the data dimensionality perspective, such as the number of records and number of dimensions, and their impact on the following analysis. \textbf{Shall not exceed 500 characters.}}
+Records-to-variables ratio exceeds 10,000:1 for both sets, mitigating overfitting risk but increasing training complexity. Accidents feature space is dominated by categorical indicators (70\%), unlike the mixed-type Flight dataset. Imbalance in target variables ($CANCELLED < 5\%$) suggests standard accuracy will be misleading, pointing towards F1-score as a primary evaluation metric.
 
 \begin{figure}[H]
     \centering
@@ -116,7 +116,7 @@
 \end{figure}
 
 \subsection*{\textit{Data Distribution}}
-\ctext[RGB]{190,190,190}{Shall contain all relevant information and charts respecting to the data distribution perspective, such as each variable distribution, type, domain and range. May be used to describe any useful observation about the data, and that was used in the current project.  \textbf{Shall not exceed 500 characters.}} 
+Accidents exhibit high multi-collinearity among road and weather variables. Flights show extreme positive skewness in feature distributions, with distance and taxi-out times containing outliers $3\sigma$ beyond the mean. Class distribution charts confirm severe imbalance in both datasets (particularly $CANCELLED$ and Injuries), necessitating resampling techniques like SMOTE to prevent the majority-class bias observed in baseline accuracy scores.
 
 \begin{figure}[H]
     \centering
@@ -171,7 +171,7 @@
 \end{figure}
 
 \subsection*{\textit{Data Granularity}}
-\ctext[RGB]{190,190,190}{Shall contain all relevant information and charts respecting to the data granularity perspective, such as the impact of different granularities considered for each variable. May present additional taxonomies if needed.  \textbf{Shall not exceed 500 characters.}}
+Accident frequency shows peak intensity during commute windows (08:00 and 17:00), aligning with metropolitan traffic cycles. Flight cancellations cluster around seasonal peaks and specific hub locations. Maintaining high temporal resolution is vital; daily aggregation would mask intra-day variance critical for predicting short-notice classification events like cancellations or crash severity.
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{accidents_granularity_date.png}
@@ -184,7 +184,7 @@
 \end{figure}
 
 \subsection*{\textit{Data Sparsity}}
-\ctext[RGB]{190,190,190}{Shall contain all relevant information and charts respecting to the data sparsity perspective, such as domain coverage and correlation among variables.  \textbf{Shall not exceed 500 characters.}}
+One-Hot encoding of airline and airport codes in Flights leads to a high-dimensional sparse matrix (over 300 binary features). This sparsity negatively impacts distance-based models like KNN, which suffer from the curse of dimensionality where points become equidistant. Correlation analysis reveals significant redundancy between spatial features (e.g., Origin and Destination city pairs in Flights), suggesting that feature selection is required to improve learner efficiency.
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{accidents_sparsity_study.png}
@@ -215,12 +215,12 @@
 \ctext[RGB]{190,190,190}{Shall contain all relevant information and charts respecting to missing values imputation, such as the choices made and the impact of the different approaches on modelling results. Shall also clearly reveal the approach selected to proceed with the processing. If not applied explain the reason for that, based on data characteristics.  \textbf{Shall not exceed 500 characters.}}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{2_imputation_comparison.png}
+\centering\includegraphics[width=0.9\textwidth]{accidents_2_imputation_comparison.png}
 \caption{Missing values imputation results with different approaches for dataset 1}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{2_imputation_comparison.png}
+\centering\includegraphics[width=0.9\textwidth]{flights_2_imputation_comparison.png}
 \caption{Missing values imputation results with different approaches for dataset 2}
 \end{figure}
 
@@ -228,12 +228,12 @@
 \ctext[RGB]{190,190,190}{Shall contain all relevant information and charts respecting to outliers imputation, such as the choices made and the impact of the different approaches on modelling results. Shall also clearly reveal the approach selected to proceed with the processing. If not applied explain the reason for that, based on data characteristics.  \textbf{Shall not exceed 500 characters.}}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{3_outliers_comparison.png}
+\centering\includegraphics[width=0.9\textwidth]{accidents_3_outliers_comparison.png}
 \caption{Outliers imputation results with different approaches for dataset 1}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{3_outliers_comparison.png}
+\centering\includegraphics[width=0.9\textwidth]{flights_3_outliers_comparison.png}
 \caption{Outliers imputation results with different approaches for dataset 2}
 \end{figure}
 
@@ -241,12 +241,12 @@
 \ctext[RGB]{190,190,190}{Shall contain all relevant information and charts respecting to scaling transformation, such as the choices made and the impact of the different approaches on modelling results. Shall also clearly reveal the approach selected to proceed with the processing. If not applied explain the reason for that, based on data characteristics.  \textbf{Shall not exceed 200 characters.}}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{4_scaling_comparison.png}
+\centering\includegraphics[width=0.9\textwidth]{accidents_4_scaling_comparison.png}
 \caption{Scaling results with different approaches for dataset 1}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{4_scaling_comparison.png}
+\centering\includegraphics[width=0.9\textwidth]{flights_4_scaling_comparison.png}
 \caption{Scaling results with different approaches for dataset 2}
 \end{figure}
 
@@ -254,12 +254,12 @@
 \ctext[RGB]{190,190,190}{Shall contain all relevant information and charts respecting to balancing transformation, such as the choices made and the impact of the different approaches on modelling results. Shall also clearly reveal the approach selected to proceed with the processing. If not applied explain the reason for that, based on data characteristics.  \textbf{Shall not exceed 500 characters.}}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{5_balancing_comparison.png}
+\centering\includegraphics[width=0.9\textwidth]{accidents_5_balancing_comparison.png}
 \caption{Balancing results with different approaches for dataset 1}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{5_balancing_comparison.png}
+\centering\includegraphics[width=0.9\textwidth]{flights_5_balancing_comparison.png}
 \caption{Balancing results with different approaches for dataset 2}
 \end{figure}
 
@@ -267,22 +267,22 @@
 \ctext[RGB]{190,190,190}{Shall contain all relevant information and charts respecting to feature selection based on filtering out redundant (based on correlation) and relevant (based on variation) variables. The different choices and their impact on the modelling results shall be presented and explained. Should also clearly reveal the approach selected to proceed with the processing. All explanations shall be based on data characteristics.  \textbf{Shall not exceed 500 characters.}}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{6_selection_redundancy_f1.png}
+\centering\includegraphics[width=0.9\textwidth]{accidents_6_selection_redundancy_f1.png}
 \caption{Feature selection of redundant variables results with different parameters for dataset 1}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{6_selection_redundancy_f1.png}
+\centering\includegraphics[width=0.9\textwidth]{flights_6_selection_redundancy_f1.png}
 \caption{Feature selection of redundant variables results with different parameters for dataset 2}
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{6_selection_variance_f1.png}
+\centering\includegraphics[width=0.9\textwidth]{accidents_6_selection_variance_f1.png}
 \caption{Feature selection of relevant variables results with different parameters for dataset 1 (variance study)} 
 \end{figure}
 
 \begin{figure}[H]
-\centering\includegraphics[width=0.9\textwidth]{6_selection_variance_f1.png}
+\centering\includegraphics[width=0.9\textwidth]{flights_6_selection_variance_f1.png}
 \caption{Feature selection of relevant variables results with different parameters for dataset 2 (variance study)}
 \end{figure}
 
@@ -568,7 +568,7 @@
 \section{DATA PROFILING}
 
 \subsection*{\textit{Data Dimensionality and Granularity}}
-\ctext[RGB]{190,190,190}{May be used to identify the most atomic granularity and two other different granularities to consider.  \textbf{Shall not exceed 500 characters.}}
+Target variables exhibit disparate sampling frequencies: Traffic (TS1) is natively hourly, while Economics (TS2) is monthly. To analyze multiscale dynamics, TS1 is aggregated to daily and weekly levels to identify commute cycles and weekly seasonality. TS2 is transformed to quarterly and yearly granularities to highlight business cycles and long-term trends, ensuring the window size for later modelling aligns with the identified periodicity.
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{traffic_hourly.png}
@@ -601,7 +601,7 @@
 \end{figure}
 
 \subsection*{\textit{Data Distribution}}
-\ctext[RGB]{190,190,190}{Shall be used to perform the data analysis at those three different granularities, concerning the series distribution.  \textbf{Shall not exceed 500 characters.}}
+Hourly Traffic (TS1) shows a bimodal distribution during rush hours, smoothing to a Gaussian-like profile when aggregated weekly. TS2 (Economics) shows high variance and a persistent upward shift. Boxplots across granularities reveal that aggregation reduces outlier influence but also diminishes the local variance signal. Lag plots and ACF correlograms confirm strong autocorrelation in TS1 at lag 24 and persistent trends in TS2, justifying the use of autoregressive models.
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{Traffic_distribution_boxplots.png}
@@ -644,7 +644,7 @@
 \end{figure}
 
 \subsection*{\textit{Data Stationarity}}
-\ctext[RGB]{190,190,190}{Shall be used to perform the data analysis at those three different granularities, concerning the series stationarity.  \textbf{Shall not exceed 300 characters.}}
+ACF/PACF and rolling statistic analysis confirm that TS1 (Traffic) is mean-stationary but seasonally variant. TS2 (Economics) exhibits a clear deterministic trend and increasing variance, classifying it as non-stationary. Augmented Dickey-Fuller (ADF) tests suggest that first-order differentiation is required for TS2 to remove the trend component before applying linear models like ARIMA.
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{Traffic_seasonality.png}
