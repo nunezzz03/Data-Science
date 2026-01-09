@@ -117,7 +117,7 @@ Records-to-variables ratio exceeds 10,000:1 for both sets, mitigating overfittin
 \end{figure}
 
 \subsection*{\textit{Data Distribution}}
-Flights feature space shows extreme positive skewness (e.g., Distance), while Accidents is dominated by categorical redundancies. Class distribution charts confirm severe imbalance in both targets (particularly the minority classes \textit{'Cancelled'} and \textit{'crash_type'}), necessitating resampling techniques like SMOTE to prevent majority-class bias.
+Flights feature space shows extreme positive skewness (e.g., Distance), while Accidents is dominated by categorical redundancies. Class distribution charts confirm severe imbalance in both targets (particularly the minority classes \textit{'Cancelled'} and \textit{'Injury-related'}), necessitating resampling techniques like SMOTE to prevent majority-class bias.
 
 \begin{figure}[H]
     \centering
@@ -710,7 +710,7 @@ Hourly Traffic (TS1) exhibits a bimodal daily profile driven by rush hour peaks,
 \end{figure}
 
 \subsection*{\textit{Data Stationarity}}
-ACF/PACF and rolling statistic analysis confirm that TS1 (Traffic) maintains a stable long-term mean despite strong seasonal variance. TS2 (Economics) exhibits a clear deterministic trend and increasing variance, classifying it as non-stationary. Augmented Dickey-Fuller (ADF) tests suggest that first-order differentiation is required for TS2 to remove the trend component before applying linear models like ARIMA.
+ACF/PACF and rolling statistics indicate that Traffic is stationary with a stable long-term mean but strong seasonality. In contrast, Economics shows a deterministic trend and increasing variance, making it non-stationary. ADF test results indicate that first-order differencing is needed for Economics before applying linear models such as ARIMA.
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{Traffic_seasonality.png}
@@ -875,10 +875,10 @@ Best Linear Reg:  MinMaxScaler ([0,1]) (RMSE=0.2925)\\
 \end{figure}
 
 \section{MODELS' EVALUATION}
-Traffic series underwent MinMax normalization (0-1 scaling) to stabilize variance across hourly fluctuations. Economic series required first-order differencing (d=1) to remove non-stationary trend, confirmed by ADF test. Both datasets split 80/20 train-test temporally to preserve chronological order. Evaluation metrics: R², RMSE, MAE, MAPE. Models trained on hourly (traffic) and yearly (economic) granularities. No exogenous variables incorporated; univariate forecasting maintained throughout baseline model evaluation to isolate temporal pattern learning capabilities.
+Traffic series underwent MinMax normalization to stabilize variance across hourly fluctuations. Economic series required first-order differencing to remove non-stationary trend, confirmed by ADF test. Both datasets split 80/20 train-test temporally to preserve chronological order. Evaluation metrics: R², RMSE, MAE, MAPE. Models trained on hourly (traffic) and yearly (economic) granularities. No exogenous variables incorporated; univariate forecasting maintained throughout baseline model evaluation to isolate temporal pattern learning capabilities.
 
 \subsection*{\textit{Simple Average Model}}
-Traffic SMA(w=14) achieved R²=0.03, RMSE=0.10. Economic SMA(w=6) shows R²$\approx$0, RMSE=0.11, confirming complete failure. Extremely high MAPE (79\% traffic, 151\% economic) indicates naive averaging wholly inadequate for temporal patterns.
+Traffic SMA(w=14) achieved R²=0.03, RMSE=0.10. Economic SMA(w=6) shows R²$\approx$0, RMSE=0.11, confirming complete failure. High MAPE (79\% traffic, 151\% economic) indicates naive averaging wholly inadequate for temporal patterns.
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{traffic_lr_SMA_w14.png}
@@ -934,7 +934,7 @@ Traffic Persistence achieves R²=0.64 (test), RMSE=35, effectively capturing sho
 \end{figure}
 
 \subsection*{\textit{Rolling Mean Model}}
-Traffic Rolling Mean tested windows w$\in${3,7,14}; w=3 selected with test R²$\approx$0, RMSE=0.20. Smoothing reduces noise but destroys critical high-frequency patterns, performing worse than Persistence baseline. Economic data shows similar failure across all windows (w=3 best: R²=-0.03, MAPE=85\%). Short windows insufficient for capturing long-term trends; longer windows over-smooth sparse yearly observations. Rolling Mean fundamentally inadequate for both series—traffic requires pattern-aware forecasting, economic needs trend-following mechanisms beyond simple averaging.
+Traffic Rolling Mean tested windows w$\in${3,7,14}; w=3 selected with test R²$\approx$0, RMSE=0.20. Smoothing reduces noise but destroys critical high-frequency patterns, performing worse than Persistence baseline. Economic data shows similar failure across all windows (w=3 best: R²=-0.03, MAPE=85\%). Short windows insufficient for capturing long-term trends; longer windows over-smooth sparse yearly observations.
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{traffic_smoothing_comparison_chart.png}
@@ -1000,7 +1000,8 @@ Traffic Exponential Smoothing tested $\alpha \in [0.1,0.9]$; $\alpha=0.1$ select
 \end{figure}
 
 \subsection*{\textit{Linear Regression Model}}
-Traffic Linear Regression achieves $R^2=0.01$ (train), $R^2\approx 0$ (test), RMSE=59, MAPE=74\%. Simple linear trend fails catastrophically against hourly volatility and cyclical patterns. Economic model shows $R^2=-0.08$ (test), producing flat horizontal forecast unable to capture economic dynamics. Linear assumption fundamentally violated in both series—traffic exhibits complex seasonality requiring nonlinear methods; economic data demands adaptive trend-following. Both forecasts demonstrate complete model inadequacy for temporal dependency modeling.
+Linear models fail: traffic LR $R^2\approx0$, RMSE=59, MAPE=74\%, missing hourly seasonality; economic model $R^2<0$ gives flat forecasts. Linear assumptions break; nonlinear, adaptive temporal models needed.
+
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{traffic_lr_none.png}
@@ -1023,7 +1024,8 @@ Traffic Linear Regression achieves $R^2=0.01$ (train), $R^2\approx 0$ (test), RM
 \end{figure}
 
 \subsection*{\textit{ARIMA Model}}
-Traffic ARIMA grid search identified d=1 as optimal, with d=0 failing completely (R²$\approx$0) and d=2 causing over-differencing. Best configuration ARIMA(5,1,2) achieved R²=0.05 on normalized data, capturing hourly autocorrelation. Forecast follows trend but struggles with high-frequency volatility. Economic ARIMA performed poorly due to limited sample size (14 yearly points). Best model ARIMA(10,0,7) achieved R²$\approx$0.10 with flat predictions, failing to capture structural breaks. Grid search across p$\in$[1,10], q$\in$[1,7] showed instability across all parameterizations, confirming inadequacy for sparse temporal data.
+Traffic ARIMA grid search found $d=1$ optimal; $d=0$ failed ($R^2\approx0$) and $d=2$ over-differenced. Best ARIMA$(5,1,2)$ reached $R^2=0.05$, capturing hourly autocorrelation but missing high-frequency volatility. Economic ARIMA suffered from small sample size (14 points): best ARIMA$(10,0,7)$ gave $R^2\approx0.10$ with flat forecasts, failing on structural breaks. Extensive $p$--$q$ search showed unstable fits, confirming ARIMA inadequacy for sparse data.
+
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{traffic_arima_R2_study.png}
@@ -1086,7 +1088,7 @@ Traffic ARIMA grid search identified d=1 as optimal, with d=0 failing completely
 \end{figure}
 
 \subsection*{\textit{LSTMs Model}}
-Traffic LSTM with sequence\_length=24 (daily cycle), hidden=32, epochs=900 achieved train R²=0.92, test R²=0.68, RMSE=0.05. Lookback=24 hours optimal for capturing intra-day patterns. Model shows overfitting (24\% R² drop) but maintains consistent RMSE. Forecasts capture volatility better than ARIMA. Economic LSTM failed catastrophically: train MAPE=100\%, test R²=1.0 (likely numerical error). With only 14 yearly observations, lookback=2 minimized MAE$\approx$0.90, but insufficient data prevented meaningful temporal learning. LSTM architecture [2 layers, 8 neurons] unable to generalize from sparse samples.
+Traffic LSTM with sequence\_length=24 (daily cycle), hidden=32, epochs=900 achieved train R²=0.92, test R²=0.68, RMSE=0.05. Lookback=24 hours optimal for capturing intra-day patterns. Model shows overfitting (24\% R² drop) but maintains consistent RMSE. Forecasts capture volatility better than ARIMA. Economic LSTM failed: train MAPE=100\%, test R²=1.0 (likely numerical error). With only 14 yearly observations, lookback=2 minimized MAE$\approx$0.90, but insufficient data prevented meaningful temporal learning.
 
 \begin{figure}[H]
 \centering\includegraphics[width=0.9\textwidth]{TRAFFIC_lstms_R2_study.png}
@@ -1149,11 +1151,12 @@ Traffic LSTM with sequence\_length=24 (daily cycle), hidden=32, epochs=900 achie
 \end{figure}
 
 \section{CRITICAL ANALYSIS}
-LSTM provided the best model for traffic forecasting. The model was best when a sequence of 48. The advantages of this sequence are two. First, this sequence allows for the identifying of seasonality, the daily routines of the populus. Second, it allows to identify the trend of the data, the increasing or decreasing traffic activity from day to day. The main drawback is the tendency of the model to overfit. The best result is attained for 32 hidden units, the model attains its best result, but if one wishes to reduce the likelihood of overfitting, 8 hidden units gives a sufficiently capable system. The group considers the model reliable for the task.
+LSTM provided the best model for traffic forecasting. The model was best when a sequence of 48 (2 days). The advantages of this sequence are two. First, this sequence allows for the identifying of seasonality, the daily routines of the populus. Second, it allows to identify the trend of the data, the increasing or decreasing traffic activity from day to day. The main drawback is the tendency of the model to overfit. The best result is attained for 32 hidden units, the model attains its best result, but if one wishes to reduce the likelihood of overfitting, 8 hidden units gives a sufficiently capable system. The group considers the model reliable for the task.
 
 Regarding the remaining methods such as MLP, ARIMA and Exponential Smoothing, MLP lacks LSTM recurrent structure, whilst ARIMA and Exponential Smoothing are better suited for more linear data. ARIMA and Exponential Smoothing also present challenges in terms of data preparation; applying differentiation and smoothing in data that was already prepared.
+
 The Economic Dataset was far harder to handle.
 
-Inflation is a mixture of politics and economics; it might as well be witchcraft. On top of the theoretical challenges of the problem domain (chaotic behavior of markets, political machinations of the practical and ideological kind, black swan events, etc) there’s also practical challenges. Very little data is available. Sometimes inflation data is not reported for long periods of time. Patterns become hard to establish. We have data from other countries, but with so little American data, it probably just adds noise. Ideally we would have more data, perhaps the addition of raw gas price data would useful. The best model appears to be ARIMA, but none of the models appears remotely reliable enough.
+Inflation is a mixture of politics and economics; it might as well be witchcraft. On top of the theoretical challenges of the problem domain (chaotic behavior of markets, political machinations of the practical and ideological kind, black swan events, etc) there’s also practical challenges. Very little data is available. Sometimes inflation data is not reported for long periods of time. Patterns become hard to establish. We have data from other countries, but with so little American data, it probably just adds noise. Ideally we would have more data, perhaps the addition of raw gas price data would be useful. The best model appears to be ARIMA, but none of the models appears remotely reliable enough.
 
 \end{document}
